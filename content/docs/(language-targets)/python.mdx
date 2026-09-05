@@ -1,0 +1,147 @@
+---
+title: Python
+description: Transpile GSET to Python code
+icon: FileType
+---
+
+GSET can transpile to Python, producing clean, idiomatic Python code.
+
+## Basic Example
+
+**GSET Input:**
+
+```python
+function main() {
+    print("Hello, World!")
+    nums = [1, 2, 3]
+    for i in nums {
+        print(i)
+    }
+}
+
+main()
+```
+
+**Python Output:**
+
+```python
+def main():
+    print("Hello, World!")
+    nums = [1, 2, 3]
+    for i in nums:
+        print(i)
+
+
+main()
+```
+
+## Type Mapping
+
+| GSET Type | Python Type |
+|-----------|------------|
+| Integer | `int` |
+| Float | `float` |
+| String | `str` |
+| Boolean | `bool` |
+| List | `list` |
+| Null | `None` |
+
+## Features
+
+### List Comprehensions
+
+GSET list comprehensions map directly to Python:
+
+**GSET:**
+
+```python
+nums = [1, 2, 3, 4, 5]
+squared = [x * x for x in nums]
+evens = [x for x in nums if x % 2 == 0]
+```
+
+**Python:**
+
+```python
+nums = [1, 2, 3, 4, 5]
+squared = [x * x for x in nums]
+evens = [x for x in nums if x % 2 == 0]
+```
+
+### Functions
+
+**GSET:**
+
+```python
+function greet(name) {
+    return "Hello, " + name
+}
+
+result = greet("World")
+```
+
+**Python:**
+
+```python
+def greet(name):
+    return "Hello, " + name
+
+
+result = greet("World")
+```
+
+### Classes
+
+**GSET:**
+
+```python
+class Person {
+    name = ""
+    age = 0
+    
+    function init(name, age) {
+        this.name = name
+        this.age = age
+    }
+}
+
+p = Person.new("Alice", 30)
+```
+
+**Python:**
+
+```python
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+
+p = Person("Alice", 30)
+```
+
+## Running Python Output
+
+```bash
+# Transpile
+gset transpile hello.py
+
+# Run the output
+python hello.py
+```
+
+<Callout type="info">
+Python 3.x is required to run the transpiled output.
+</Callout>
+
+## Tips
+
+1. **Virtual environments**: Use `python -m venv venv` to create isolated environments
+2. **Type hints**: GSET doesn't generate type hints, but you can add them manually
+3. **Dependencies**: Use `requirements.txt` or `pyproject.toml` for package management
+
+## Known Limitations
+
+- No built-in type annotations (add manually if needed)
+- Some Go-specific features like goroutines don't translate
+- Package management differs from Go modules

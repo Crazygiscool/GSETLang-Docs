@@ -1,0 +1,88 @@
+---
+title: Introduction
+description: GSET - Write in any language syntax, compile to any language
+icon: Code
+---
+
+GSET (Generic Syntax Extension Tool) is a powerful transpiler that lets you write code using **any language's syntax** and compile it to run on **any target language's runtime**.
+
+<Cards>
+  <Card title="Getting Started" href="./(getting-started)" icon="Zap" />
+  <Card title="Language Guide" href="./(language-guide)" icon="BookOpen" />
+  <Card title="Language Targets" href="./(language-targets)" icon="Globe" />
+  <Card title="Configuration" href="./(configuration)" icon="Settings" />
+</Cards>
+
+## Quick Example
+
+Write this in any syntax you prefer:
+
+```go
+print("Hello from Python syntax!")
+nums = [1, 2, 3]
+for i in nums {
+    print(i)
+}
+```
+
+Compile to your target language:
+
+| Target | Output |
+|--------|--------|
+| Python | `print("Hello from Python syntax!")` |
+| JavaScript | `console.log("Hello from Python syntax!")` |
+| Java | `System.out.println("Hello from Python syntax!")` |
+| Go | `fmt.Println("Hello from Python syntax!")` |
+
+## Features
+
+- **14+ Language Targets**: Python, JavaScript, Java, Go, Ruby, PHP, C#, Rust, Swift, Kotlin, C++, and more
+- **Familiar Syntax**: Write in your preferred programming style
+- **Custom Keywords**: Define your own function names
+- **List Comprehensions**: Expressive and concise array operations
+- **Pattern Matching**: Clean match statements for conditional logic
+- **Security Hardened**: Input validation, command sanitization, depth limits
+
+## Installation
+
+Choose your platform to get started:
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+<div>
+
+### Linux
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Crazygiscool/GSETLang/main/install.sh | bash
+```
+
+</div>
+
+<div>
+
+### macOS
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Crazygiscool/GSETLang/main/install.sh | bash
+```
+
+</div>
+
+<div>
+
+### Windows
+
+```powershell
+irm https://raw.githubusercontent.com/Crazygiscool/GSETLang/main/install.ps1 | iex
+```
+
+</div>
+
+</div>
+
+See the [Installation](./(getting-started)/installation) guide for more options.
+
+<Callout type="info">
+  GSET is open source under CC BY-NC 4.0 license. See [GitHub](https://github.com/Crazygiscool/GSETLang) for more information.
+</Callout>

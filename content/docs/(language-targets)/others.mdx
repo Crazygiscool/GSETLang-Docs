@@ -1,0 +1,238 @@
+---
+title: Other Languages
+description: Transpile GSET to Ruby, PHP, C#, Rust, Swift, Kotlin, C/C++
+icon: Ellipsis
+---
+
+GSET supports additional languages beyond the main four. Here's an overview.
+
+## Ruby
+
+**GSET:**
+
+```go
+function main() {
+    print("Hello, World!")
+    nums = [1, 2, 3]
+    for i in nums {
+        print(i)
+    }
+}
+```
+
+**Ruby:**
+
+```ruby
+def main
+  puts "Hello, World!"
+  nums = [1, 2, 3]
+  for i in nums
+    puts i
+  end
+end
+
+main
+```
+
+**Run:** `ruby hello.rb`
+
+---
+
+## PHP
+
+**GSET:**
+
+```go
+function main() {
+    print("Hello, World!")
+}
+```
+
+**PHP:**
+
+```php
+<?php
+
+function main() {
+    echo "Hello, World!";
+}
+
+main();
+```
+
+**Run:** `php hello.php`
+
+<Callout type="info">
+PHP requires `<?php` opening tag. The transpiler includes it automatically.
+</Callout>
+
+---
+
+## C#
+
+**GSET:**
+
+```go
+function main() {
+    print("Hello, World!")
+}
+```
+
+**C#:**
+
+```csharp
+using System;
+
+class Program
+{
+    public static void Main()
+    {
+        Console.WriteLine("Hello, World!");
+    }
+    
+    public static void Main()
+    {
+        Console.WriteLine("Hello, World!");
+    }
+}
+```
+
+**Run:** `dotnet run` (with .csproj)
+
+---
+
+## Rust
+
+**GSET:**
+
+```go
+function main() {
+    print("Hello, World!")
+}
+```
+
+**Rust:**
+
+```rust
+fn main() {
+    println!("Hello, World!");
+}
+```
+
+**Run:** `rustc hello.rs && ./hello`
+
+---
+
+## Swift
+
+**GSET:**
+
+```go
+function main() {
+    print("Hello, World!")
+}
+```
+
+**Swift:**
+
+```swift
+func main() {
+    print("Hello, World!")
+}
+
+main()
+```
+
+**Run:** `swift hello.swift`
+
+---
+
+## Kotlin
+
+**GSET:**
+
+```go
+function main() {
+    print("Hello, World!")
+}
+```
+
+**Kotlin:**
+
+```kotlin
+fun main() {
+    println("Hello, World!")
+}
+```
+
+**Run:** `kotlinc hello.kt -include-runtime -d hello.jar && java -jar hello.jar`
+
+---
+
+## C++
+
+**GSET:**
+
+```go
+function main() {
+    print("Hello, World!")
+}
+```
+
+**C++:**
+
+```cpp
+#include <iostream>
+#include <vector>
+
+int main() {
+    std::cout << "Hello, World!" << std::endl;
+    return 0;
+}
+```
+
+**Compile:** `g++ hello.cpp -o hello && ./hello`
+
+---
+
+## C
+
+**GSET:**
+
+```go
+function main() {
+    print("Hello, World!")
+}
+```
+
+**C:**
+
+```c
+#include <stdio.h>
+
+int main() {
+    printf("Hello, World!\n");
+    return 0;
+}
+```
+
+**Compile:** `gcc hello.c -o hello && ./hello`
+
+---
+
+## Quick Reference
+
+| Language | File Extension | Run Command |
+|----------|---------------|-------------|
+| Ruby | `.rb` | `ruby file.rb` |
+| PHP | `.php` | `php file.php` |
+| C# | `.cs` | `dotnet run` |
+| Rust | `.rs` | `rustc file.rs && ./file` |
+| Swift | `.swift` | `swift file.swift` |
+| Kotlin | `.kt` | `kotlinc file.kt && java ...` |
+| C++ | `.cpp` | `g++ file.cpp && ./a.out` |
+| C | `.c` | `gcc file.c && ./a.out` |
+
+<Callout type="info">
+Each language requires its respective compiler/runtime installed on your system.
+</Callout>

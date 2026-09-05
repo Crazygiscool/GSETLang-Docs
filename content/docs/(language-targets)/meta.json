@@ -1,0 +1,12 @@
+{
+  "title": "Language Targets",
+  "icon": "Globe",
+  "pages": [
+    "index",
+    "python",
+    "javascript",
+    "go",
+    "java",
+    "others"
+  ]
+}

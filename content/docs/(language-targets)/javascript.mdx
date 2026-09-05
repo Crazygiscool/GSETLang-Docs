@@ -1,0 +1,196 @@
+---
+title: JavaScript / Node.js
+description: Transpile GSET to JavaScript code
+icon: FileCode
+---
+
+GSET can transpile to JavaScript, producing code that runs in both browsers and Node.js.
+
+## Basic Example
+
+**GSET Input:**
+
+```go
+function main() {
+    print("Hello, World!")
+    nums = [1, 2, 3]
+    for i in nums {
+        print(i)
+    }
+}
+
+main()
+```
+
+**JavaScript Output:**
+
+```javascript
+function main() {
+    console.log("Hello, World!");
+    const nums = [1, 2, 3];
+    for (const i of nums) {
+        console.log(i);
+    }
+}
+
+main();
+```
+
+## Type Mapping
+
+| GSET Type | JavaScript Type |
+|-----------|----------------|
+| Integer | `number` |
+| Float | `number` |
+| String | `string` |
+| Boolean | `boolean` |
+| List | `Array` |
+| Null | `null` |
+
+## Features
+
+### Arrow Functions
+
+**GSET:**
+
+```go
+function main() {
+    add = function(a, b) {
+        return a + b
+    }
+    print(add(1, 2))
+}
+```
+
+**JavaScript:**
+
+```javascript
+function main() {
+    const add = (a, b) => {
+        return a + b;
+    };
+    console.log(add(1, 2));
+}
+```
+
+### Classes
+
+**GSET:**
+
+```go
+class Person {
+    name = ""
+    age = 0
+    
+    function init(name, age) {
+        this.name = name
+        this.age = age
+    }
+    
+    function greet() {
+        print("Hello, I'm ")
+        print(this.name)
+    }
+}
+
+p = Person.new("Alice", 30)
+p.greet()
+```
+
+**JavaScript:**
+
+```javascript
+class Person {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+    
+    greet() {
+        console.log("Hello, I'm ");
+        console.log(this.name);
+    }
+}
+
+const p = new Person("Alice", 30);
+p.greet();
+```
+
+### Promises (Manual)
+
+GSET doesn't generate async/await directly, but you can write synchronous code:
+
+**GSET:**
+
+```go
+function fetchData() {
+    return "data"
+}
+
+function main() {
+    result = fetchData()
+    print(result)
+}
+```
+
+**JavaScript:**
+
+```javascript
+function fetchData() {
+    return "data";
+}
+
+function main() {
+    const result = fetchData();
+    console.log(result);
+}
+```
+
+## Running JavaScript Output
+
+```bash
+# Transpile
+gset transpile hello.js
+
+# Run with Node.js
+node hello.js
+```
+
+<Callout type="info">
+Node.js 18+ is recommended for running the transpiled output.
+</Callout>
+
+## ES Modules vs CommonJS
+
+GSET outputs work with both:
+
+**As CommonJS (default):**
+
+```javascript
+function main() {
+    console.log("Hello!");
+}
+main();
+```
+
+**As ES Module (add `"type": "module"` to package.json):**
+
+```javascript
+export function main() {
+    console.log("Hello!");
+}
+
+main();
+```
+
+## Tips
+
+1. **Node.js modules**: Use `require()` or ES imports
+2. **npm/yarn**: Use for package management
+3. **TypeScript**: Consider adding types manually for better IDE support
+
+## Known Limitations
+
+- No native async/await generation
+- No TypeScript type annotations (add manually)
+- Class inheritance patterns may differ slightly

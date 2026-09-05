@@ -1,0 +1,184 @@
+---
+title: Functions
+description: Define, call, and use functions in GSET
+icon: Warehouse
+---
+
+Functions are reusable blocks of code that perform specific tasks.
+
+## Basic Functions
+
+Define a function with the `function` keyword:
+
+```go
+function greet() {
+    print("Hello, World!")
+}
+
+function main() {
+    greet()
+}
+```
+
+## Functions with Parameters
+
+```go
+function greet(name) {
+    print("Hello, ")
+    print(name)
+}
+
+function main() {
+    greet("Alice")
+    greet("Bob")
+}
+```
+
+## Return Values
+
+Use `return` to send values back:
+
+```go
+function add(a, b) {
+    return a + b
+}
+
+function main() {
+    result = add(5, 3)
+    print(result)  # 8
+}
+```
+
+### Multiple Returns
+
+```go
+function divide(a, b) {
+    if b == 0 {
+        return 0
+    }
+    quotient = a / b
+    remainder = a % b
+    return quotient
+}
+
+function main() {
+    result = divide(10, 3)
+    print(result)
+}
+```
+
+## Default Parameters
+
+```go
+function greet(name = "World") {
+    print("Hello, ")
+    print(name)
+}
+
+function main() {
+    greet()           # Hello, World
+    greet("Alice")    # Hello, Alice
+}
+```
+
+## Recursion
+
+Functions can call themselves:
+
+```go
+function factorial(n) {
+    if n <= 1 {
+        return 1
+    }
+    return n * factorial(n - 1)
+}
+
+function main() {
+    print(factorial(5))  # 120
+}
+```
+
+### Fibonacci Example
+
+```go
+function fib(n) {
+    if n <= 1 {
+        return n
+    }
+    return fib(n - 1) + fib(n - 2)
+}
+
+function main() {
+    for i = 0; i < 10; i = i + 1 {
+        print(fib(i))
+    }
+}
+```
+
+## Higher-Order Functions
+
+Pass functions as values:
+
+```go
+function apply(fn, value) {
+    return fn(value)
+}
+
+function double(x) {
+    return x * 2
+}
+
+function main() {
+    result = apply(double, 5)
+    print(result)  # 10
+}
+```
+
+## Function as Values
+
+```go
+function main() {
+    # Assign function to variable
+    myFn = function(x) {
+        return x + 1
+    }
+    
+    print(myFn(5))  # 6
+    
+    # Pass to another function
+    result = apply(myFn, 10)
+    print(result)  # 11
+}
+```
+
+## Variable Arguments
+
+```go
+function sum(nums) {
+    total = 0
+    for n in nums {
+        total = total + n
+    }
+    return total
+}
+
+function main() {
+    print(sum([1, 2, 3]))        # 6
+    print(sum([1, 2, 3, 4, 5]))  # 15
+}
+```
+
+<Callout type="info">
+GSET functions are first-class citizens - they can be assigned to variables, passed as arguments, and returned from other functions.
+</Callout>
+
+## Best Practices
+
+1. **Use descriptive names**: `calculateTotal()` is clearer than `calc()`
+2. **Single responsibility**: Each function should do one thing well
+3. **Keep functions small**: Easier to test and maintain
+4. **Document complex functions**: Comment the purpose and parameters
+
+<Callout type="success">
+Functions are essential for code organization. Next, learn about [Classes](./classes) for object-oriented programming.
+</Callout>

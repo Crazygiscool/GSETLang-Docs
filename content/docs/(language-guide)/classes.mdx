@@ -1,0 +1,231 @@
+---
+title: Classes
+description: Object-oriented programming with GSET classes
+icon: Box
+---
+
+GSET supports object-oriented programming with classes, inheritance, and encapsulation.
+
+## Basic Class
+
+Define a class with properties and methods:
+
+```go
+class Person {
+    name = "John"
+    age = 30
+    
+    function greet() {
+        print("Hello, my name is ")
+        print(this.name)
+    }
+}
+
+function main() {
+    p = Person.new()
+    p.greet()
+}
+```
+
+## Class with Constructor
+
+```go
+class Person {
+    name = ""
+    age = 0
+    
+    function init(name, age) {
+        this.name = name
+        this.age = age
+    }
+    
+    function greet() {
+        print("Hello, I'm ")
+        print(this.name)
+        print(", age ")
+        print(this.age)
+    }
+}
+
+function main() {
+    p = Person.new("Alice", 25)
+    p.greet()
+}
+```
+
+## Inheritance
+
+Classes can inherit from other classes:
+
+```go
+class Animal {
+    name = ""
+    
+    function init(name) {
+        this.name = name
+    }
+    
+    function speak() {
+        print("Some sound")
+    }
+}
+
+class Dog extends Animal {
+    function init(name) {
+        super(name)
+    }
+    
+    function speak() {
+        print(this.name)
+        print(" says woof!")
+    }
+}
+
+function main() {
+    dog = Dog.new("Buddy")
+    dog.speak()  # Buddy says woof!
+}
+```
+
+## Methods
+
+### Instance Methods
+
+```go
+class Calculator {
+    value = 0
+    
+    function init() {
+        this.value = 0
+    }
+    
+    function add(n) {
+        this.value = this.value + n
+        return this
+    }
+    
+    function subtract(n) {
+        this.value = this.value - n
+        return this
+    }
+    
+    function getValue() {
+        return this.value
+    }
+}
+
+function main() {
+    calc = Calculator.new()
+    result = calc.add(10).subtract(3).getValue()
+    print(result)  # 7
+}
+```
+
+### Static Methods
+
+```go
+class Math {
+    function abs(x) {
+        if x < 0 {
+            return -x
+        }
+        return x
+    }
+    
+    function max(a, b) {
+        if a > b {
+            return a
+        }
+        return b
+    }
+}
+
+function main() {
+    print(Math.abs(-5))  # 5
+    print(Math.max(3, 7))  # 7
+}
+```
+
+## Properties
+
+```go
+class Rectangle {
+    width = 0
+    height = 0
+    
+    function init(width, height) {
+        this.width = width
+        this.height = height
+    }
+    
+    function area() {
+        return this.width * this.height
+    }
+    
+    function perimeter() {
+        return 2 * (this.width + this.height)
+    }
+}
+
+function main() {
+    rect = Rectangle.new(5, 3)
+    print(rect.area())       # 15
+    print(rect.perimeter())  # 16
+}
+```
+
+## Encapsulation
+
+Use conventions to indicate privacy:
+
+```go
+class BankAccount {
+    _balance = 0  # underscore indicates "private"
+    
+    function init(initial) {
+        this._balance = initial
+    }
+    
+    function deposit(amount) {
+        if amount > 0 {
+            this._balance = this._balance + amount
+            return true
+        }
+        return false
+    }
+    
+    function withdraw(amount) {
+        if amount > 0 && amount <= this._balance {
+            this._balance = this._balance - amount
+            return true
+        }
+        return false
+    }
+    
+    function getBalance() {
+        return this._balance
+    }
+}
+
+function main() {
+    account = BankAccount.new(100)
+    account.deposit(50)
+    account.withdraw(30)
+    print(account.getBalance())  # 120
+}
+```
+
+<Callout type="info">
+GSET classes support inheritance via `extends`. Use `super()` to call parent constructors.
+</Callout>
+
+## Best Practices
+
+1. **Single responsibility**: Each class should have one clear purpose
+2. **Use meaningful names**: `BankAccount` is clearer than `Data`
+3. **Group related data**: Classes bundle related properties and methods
+4. **Consider immutability**: Use `val` for properties that shouldn't change
+
+<Callout type="success">
+Classes enable OOP patterns. Next, learn about [Error Handling](./error-handling) for robust code.
+</Callout>

@@ -1,0 +1,119 @@
+---
+title: Variables & Types
+description: Learn about GSET's type system and variable declarations
+icon: Hash
+---
+
+GSET supports dynamic typing with a simple, flexible type system.
+
+## Basic Variables
+
+Declare variables using assignment:
+
+```go
+function main() {
+    x = 42
+    name = "GSET"
+    isActive = true
+    price = 3.14
+    
+    print(x)
+    print(name)
+    print(isActive)
+    print(price)
+}
+```
+
+## Supported Types
+
+| Type | Example | Description |
+|------|---------|-------------|
+| Integer | `x = 42` | Whole numbers |
+| Float | `x = 3.14` | Decimal numbers |
+| String | `x = "hello"` | Text values |
+| Boolean | `x = true` / `x = false` | Logical values |
+| List | `x = [1, 2, 3]` | Ordered collections |
+| Null | `x = null` | Empty value |
+
+## Lists
+
+Lists are ordered, mutable collections:
+
+```go
+function main() {
+    # Empty list
+    empty = []
+    
+    # Mixed types
+    mixed = [1, "hello", true, 3.14]
+    
+    # Access by index (0-based)
+    print(mixed[0])  # 1
+    print(mixed[1])  # "hello"
+    
+    # Modify elements
+    mixed[0] = 99
+    print(mixed)
+    
+    # List length
+    print(len(mixed))  # 4
+    
+    # Append
+    append(mixed, "new")
+    print(mixed)  # [99, "hello", true, 3.14, "new"]
+}
+```
+
+## Type Inference
+
+GSET infers types automatically:
+
+```go
+function main() {
+    # Type is inferred from value
+    a = 10        # integer
+    b = "hello"   # string
+    c = true      # boolean
+    d = [1, 2]    # list
+    
+    # Reassignment changes type
+    a = "now string"
+    print(a)  # "now string"
+}
+```
+
+<Callout type="warn">
+Unlike static languages, GSET allows reassigning different types to the same variable. This provides flexibility but requires careful tracking of expected types.
+</Callout>
+
+## Variable Scope
+
+Variables have function-level scope:
+
+```go
+function main() {
+    x = 10
+    
+    if true {
+        y = 20  # accessible in this block
+        print(x)  # 10 - can access outer variable
+    }
+    
+    print(y)  # 20 - block variable still accessible
+}
+
+function other() {
+    print(x)  # Error: x not defined here
+}
+```
+
+## Best Practices
+
+1. **Use descriptive names**: `userName` instead of `x`
+2. **Initialize before use**: Always assign a value when declaring
+3. **Group related variables**: Use structs or classes for related data
+4. **Limit scope**: Declare variables where they're first used
+
+<Callout type="success">
+Now you understand GSET's type system! Continue to [Control Flow](./control-flow) to learn about conditionals.
+</Callout>

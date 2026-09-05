@@ -1,0 +1,10 @@
+{
+  "pages": [
+    "(getting-started)",
+    "(language-guide)",
+    "(language-targets)",
+    "(configuration)",
+    "(security)",
+    "(development)"
+  ]
+}

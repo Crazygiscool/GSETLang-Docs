@@ -1,0 +1,154 @@
+---
+title: Error Handling
+description: Try, catch, and finally blocks in GSET
+icon: TriangleAlert
+---
+
+GSET provides robust error handling with try-catch-finally constructs.
+
+## Basic Try-Catch
+
+```go
+function main() {
+    result = 0
+    
+    try {
+        result = 10 / 0
+    } catch e {
+        print("Error occurred: ")
+        print(e)
+    }
+    
+    print("Program continues...")
+}
+```
+
+## Try-Catch-Finally
+
+The `finally` block always executes, regardless of whether an error occurred:
+
+```go
+function main() {
+    file = null
+    
+    try {
+        file = open("test.txt")
+        content = read(file)
+        print(content)
+    } catch e {
+        print("Error: ")
+        print(e)
+    } finally {
+        if file != null {
+            close(file)
+            print("File closed")
+        }
+    }
+}
+```
+
+## Catching Multiple Errors
+
+```go
+function process(data) {
+    try {
+        if data == null {
+            throw("NullDataError")
+        }
+        
+        if len(data) == 0 {
+            throw("EmptyDataError")
+        }
+        
+        result = data[0] / data[1]
+        print(result)
+        
+    } catch e {
+        if e == "NullDataError" {
+            print("Data is null")
+        } else if e == "EmptyDataError" {
+            print("Data is empty")
+        } else {
+            print("Unknown error: ")
+            print(e)
+        }
+    }
+}
+
+function main() {
+    process(null)
+    process([])
+    process([10, 0])
+}
+```
+
+## Throwing Custom Errors
+
+```go
+function validateAge(age) {
+    if age < 0 {
+        throw("InvalidAge: Age cannot be negative")
+    }
+    if age > 150 {
+        throw("InvalidAge: Age is too large")
+    }
+    return true
+}
+
+function main() {
+    try {
+        validateAge(-5)
+    } catch e {
+        print("Validation error: ")
+        print(e)
+    }
+}
+```
+
+## Nested Try-Catch
+
+```go
+function main() {
+    try {
+        outer = 10
+        
+        try {
+            inner = outer / 0
+        } catch innerError {
+            print("Inner catch: ")
+            print(innerError)
+            throw("OuterError")
+        }
+        
+    } catch outerError {
+        print("Outer catch: ")
+        print(outerError)
+    }
+    
+    print("Recovery successful")
+}
+```
+
+## Best Practices
+
+1. **Catch specific errors**: Avoid catching everything indiscriminately
+2. **Clean up in finally**: Release resources, close files, etc.
+3. **Log errors appropriately**: Don't suppress errors silently
+4. **Provide meaningful messages**: Help debugging with descriptive errors
+
+<Callout type="warn">
+Avoid empty catch blocks - they hide errors and make debugging difficult.
+</Callout>
+
+## Common Error Types
+
+| Error | Cause | Example |
+|-------|-------|---------|
+| Division by zero | Dividing by 0 | `10 / 0` |
+| Null reference | Accessing null | `null.property` |
+| Index out of bounds | Invalid index | `list[100]` |
+| Type mismatch | Wrong type operation | `"str" + 1` |
+
+<Callout type="success">
+Error handling makes your code robust. Next, learn about [Pattern Matching](./pattern-matching) for elegant conditionals.
+</Callout>

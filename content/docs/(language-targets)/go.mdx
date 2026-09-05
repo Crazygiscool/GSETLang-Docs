@@ -1,0 +1,162 @@
+---
+title: Go
+description: Transpile GSET to Go code (default target)
+icon: Hexagon
+---
+
+Go is the default target language for GSET.
+
+## Basic Example
+
+**GSET Input:**
+
+```go
+function main() {
+    print("Hello, World!")
+    nums = [1, 2, 3]
+    for i in nums {
+        print(i)
+    }
+}
+
+main()
+```
+
+**Go Output:**
+
+```go
+func main() {
+    fmt.Println("Hello, World!")
+    nums := []int{1, 2, 3}
+    for _, i := range nums {
+        fmt.Println(i)
+    }
+}
+
+func main() {
+    fmt.Println("Hello, World!")
+    nums := []int{1, 2, 3}
+    for _, i := range nums {
+        fmt.Println(i)
+    }
+}
+```
+
+<Callout type="warn">
+Note: The current transpiler generates duplicate `main()` functions. This is a known issue being addressed.
+</Callout>
+
+## Type Mapping
+
+| GSET Type | Go Type |
+|-----------|---------|
+| Integer | `int` |
+| Float | `float64` |
+| String | `string` |
+| Boolean | `bool` |
+| List | `[]int` / `[]interface{}` |
+| Null | `nil` |
+
+## Features
+
+### Functions
+
+**GSET:**
+
+```go
+function greet(name) {
+    return "Hello, " + name
+}
+
+result = greet("World")
+```
+
+**Go:**
+
+```go
+func greet(name string) string {
+    return "Hello, " + name
+}
+
+func main() {
+    result := greet("World")
+}
+```
+
+### Structs (Classes)
+
+**GSET:**
+
+```go
+class Person {
+    name = ""
+    age = 0
+    
+    function init(name, age) {
+        this.name = name
+        this.age = age
+    }
+}
+```
+
+**Go:**
+
+```go
+type Person struct {
+    name string
+    age  int
+}
+
+func NewPerson(name string, age int) *Person {
+    return &Person{name: name, age: age}
+}
+```
+
+### Maps
+
+**GSET:**
+
+```go
+function main() {
+    m = {"key": "value", "count": 42}
+    print(m["key"])
+}
+```
+
+**Go:**
+
+```go
+func main() {
+    m := map[string]interface{}{"key": "value", "count": 42}
+    fmt.Println(m["key"])
+}
+```
+
+## Running Go Output
+
+```bash
+# Transpile
+gset transpile hello.go
+
+# Run
+go run hello.go
+
+# Or compile
+go build hello.go
+```
+
+<Callout type="info">
+Go 1.21+ is required. The output includes `fmt` imports automatically.
+</Callout>
+
+## Tips
+
+1. **Go modules**: Use `go mod init` for dependency management
+2. **Formatting**: Run `go fmt` on transpiled code
+3. **Linting**: Use `go vet` for additional checks
+
+## Known Limitations
+
+- Duplicate main functions in some cases
+- Interface types use `[]interface{}` which is less efficient
+- Some Go-specific features (goroutines, channels) need manual addition

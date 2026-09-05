@@ -1,0 +1,210 @@
+---
+title: Pattern Matching
+description: Match statements for conditional logic in GSET
+icon: GitBranch
+---
+
+Pattern matching provides a powerful way to handle multiple conditions elegantly.
+
+## Basic Match Statement
+
+```go
+function main() {
+    value = 2
+    
+    match value {
+        case 1:
+            print("one")
+        case 2:
+            print("two")
+        case 3:
+            print("three")
+        default:
+            print("other")
+    }
+}
+```
+
+## Match with Multiple Cases
+
+```go
+function getDayType(day) {
+    match day {
+        case 1:
+            return "Monday"
+        case 2:
+            return "Tuesday"
+        case 3:
+            return "Wednesday"
+        case 4:
+            return "Thursday"
+        case 5:
+            return "Friday"
+        case 6:
+            return "Saturday"
+        case 7:
+            return "Sunday"
+        default:
+            return "Invalid"
+    }
+}
+
+function main() {
+    print(getDayType(1))   # Monday
+    print(getDayType(5))   # Friday
+    print(getDayType(10)) # Invalid
+}
+```
+
+## Match with String Values
+
+```go
+function main() {
+    status = "success"
+    
+    match status {
+        case "success":
+            print("Operation completed successfully")
+        case "error":
+            print("An error occurred")
+        case "pending":
+            print("Operation is pending")
+        default:
+            print("Unknown status")
+    }
+}
+```
+
+## Match in Expressions
+
+```go
+function main() {
+    num = 5
+    
+    result = match num {
+        case 1:
+            "one"
+        case 2:
+            "two"
+        case 3:
+            "three"
+        default:
+            "other"
+    }
+    
+    print(result)  # other (since num is 5)
+}
+```
+
+## Match with Conditions
+
+```go
+function classify(number) {
+    match number {
+        case n if n > 0:
+            print("positive")
+        case n if n < 0:
+            print("negative")
+        case 0:
+            print("zero")
+    }
+}
+
+function main() {
+    classify(10)   # positive
+    classify(-5)  # negative
+    classify(0)   # zero
+}
+```
+
+## Practical Examples
+
+### HTTP Status Codes
+
+```go
+function handleStatus(code) {
+    message = match code {
+        case 200:
+            "OK"
+        case 201:
+            "Created"
+        case 204:
+            "No Content"
+        case 400:
+            "Bad Request"
+        case 401:
+            "Unauthorized"
+        case 403:
+            "Forbidden"
+        case 404:
+            "Not Found"
+        case 500:
+            "Internal Server Error"
+        default:
+            "Unknown Status"
+    }
+    
+    print(code)
+    print(": ")
+    print(message)
+}
+
+function main() {
+    handleStatus(200)
+    handleStatus(404)
+    handleStatus(999)
+}
+```
+
+### Shape Area Calculator
+
+```go
+function calculateArea(shapeType, params) {
+    area = match shapeType {
+        case "circle":
+            3.14159 * params[0] * params[0]
+        case "rectangle":
+            params[0] * params[1]
+        case "triangle":
+            0.5 * params[0] * params[1]
+        default:
+            0
+    }
+    return area
+}
+
+function main() {
+    # Circle: radius = 5
+    print(calculateArea("circle", [5]))      # 78.53975
+    
+    # Rectangle: width = 4, height = 5
+    print(calculateArea("rectangle", [4, 5])) # 20
+    
+    # Triangle: base = 3, height = 4
+    print(calculateArea("triangle", [3, 4]))  # 6
+}
+```
+
+## Match vs If-Else
+
+| Scenario | Recommended |
+|----------|-------------|
+| Many discrete values | `match` |
+| Complex conditions with ranges | `if-else` |
+| Type checking | `match` |
+| Multiple conditions | `match` |
+
+<Callout type="info">
+Use `match` when you have many discrete cases to check. It often produces cleaner code than long if-else chains.
+</Callout>
+
+## Best Practices
+
+1. **Always include default**: Handle unexpected values
+2. **Keep cases simple**: Complex logic may need helper functions
+3. **Use for discrete values**: When you have a fixed set of options
+4. **Consider exhaustiveness**: Ensure all possible values are handled
+
+<Callout type="success">
+Pattern matching is a powerful tool! Continue to [Language Targets](./(language-targets)) to see which languages GSET can generate.
+</Callout>

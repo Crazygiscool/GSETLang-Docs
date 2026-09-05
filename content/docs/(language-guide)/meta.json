@@ -1,0 +1,14 @@
+{
+  "title": "Language Guide",
+  "icon": "BookOpen",
+  "pages": [
+    "index",
+    "variables",
+    "control-flow",
+    "loops",
+    "functions",
+    "classes",
+    "error-handling",
+    "pattern-matching"
+  ]
+}

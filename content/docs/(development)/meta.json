@@ -1,0 +1,8 @@
+{
+  "title": "Development",
+  "icon": "Wrench",
+  "pages": [
+    "building",
+    "testing"
+  ]
+}

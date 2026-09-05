@@ -1,0 +1,184 @@
+---
+title: Installation
+description: Complete installation guide for GSET on all platforms
+icon: Download
+---
+
+This guide covers all ways to install GSET on your system.
+
+## Quick Install (Recommended)
+
+The fastest way to install GSET is using our automated install script:
+
+### Linux/macOS
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Crazygiscool/GSETLang/main/install.sh | bash
+```
+
+### Windows (Bash)
+
+```bash
+# Git Bash, WSL, or MSYS2
+curl -fsSL https://raw.githubusercontent.com/Crazygiscool/GSETLang/main/install.sh | bash
+```
+
+### Windows (PowerShell)
+
+```powershell
+irm https://raw.githubusercontent.com/Crazygiscool/GSETLang/main/install.ps1 | iex
+```
+
+<Callout type="info">
+The install script auto-detects your OS and architecture. It places the binary in `~/.local/bin/` on Unix-like systems or `C:\Tools\gset\` on Windows.
+</Callout>
+
+## Package Managers
+
+### Winget (Windows)
+
+```powershell
+winget install GSETLang.GSET
+```
+
+### Scoop (Windows)
+
+```powershell
+scoop bucket add extras
+scoop install gset
+```
+
+### Yay/Paru (Arch Linux)
+
+```bash
+yay -S gset-git
+# or
+paru -S gset-git
+```
+
+## Manual Download
+
+### Linux
+
+```bash
+# Replace with your architecture
+wget https://github.com/Crazygiscool/GSETLang/releases/latest/download/gset-linux-amd64.tar.gz
+tar -xzf gset-linux-amd64.tar.gz
+chmod +x gset && mv gset ~/.local/bin/
+```
+
+| Architecture | Download |
+|-------------|----------|
+| amd64 (x86_64) | [gset-linux-amd64.tar.gz](https://github.com/Crazygiscool/GSETLang/releases/latest/download/gset-linux-amd64.tar.gz) |
+| arm64 (aarch64) | [gset-linux-arm64.tar.gz](https://github.com/Crazygiscool/GSETLang/releases/latest/download/gset-linux-arm64.tar.gz) |
+| 386 (i386) | [gset-linux-386.tar.gz](https://github.com/Crazygiscool/GSETLang/releases/latest/download/gset-linux-386.tar.gz) |
+
+### macOS
+
+```bash
+# Intel
+wget https://github.com/Crazygiscool/GSETLang/releases/latest/download/gset-darwin-amd64.tar.gz
+
+# Apple Silicon
+wget https://github.com/Crazygiscool/GSETLang/releases/latest/download/gset-darwin-arm64.tar.gz
+
+tar -xzf gset-darwin-*.tar.gz
+chmod +x gset && mv gset ~/.local/bin/
+```
+
+### Windows (PowerShell)
+
+```powershell
+irm https://github.com/Crazygiscool/GSETLang/releases/latest/download/gset-windows-amd64.zip -OutFile gset.zip
+Expand-Archive gset.zip -DestinationPath C:\Tools\gset
+# Add C:\Tools\gset to your PATH
+```
+
+## Build from Source
+
+If you prefer building from source or want the latest development version:
+
+```bash
+# Clone the repository
+git clone https://github.com/Crazygiscool/GSETLang
+cd GSETLang
+
+# Build the binary
+go build -o gset .
+
+# Optionally install
+go install
+```
+
+<Callout type="warn">
+Building from source requires **Go 1.21 or later**. Check your version with `go version`.
+</Callout>
+
+## Verify Installation
+
+After installation, verify GSET is working:
+
+```bash
+gset --version
+```
+
+You should see output like:
+
+```
+GSET v2.1.3
+```
+
+## Post-Installation
+
+### Add to PATH (if needed)
+
+**Linux/macOS**: Add to your shell config (`~/.bashrc`, `~/.zshrc`):
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+**Windows**: Add `C:\Tools\gset` to your System PATH via System Properties.
+
+### Install Target Language Runtimes
+
+GSET transpiles code but doesn't run it. Install the runtime for your target language:
+
+| Target | Required Runtime |
+|--------|------------------|
+| Python | Python 3.x |
+| JavaScript/Node | Node.js |
+| Java | JDK 11+ |
+| Go | Go toolchain |
+| Ruby | Ruby |
+| PHP | PHP |
+| C# | .NET SDK |
+| Rust | Rust/Cargo |
+| Swift | Swift toolchain |
+| Kotlin | Kotlin compiler |
+
+<Callout type="info">
+GSET auto-detects the target language from your file extension (e.g., `.py` → Python, `.js` → JavaScript).
+</Callout>
+
+## Troubleshooting
+
+### "Command not found" on Linux/macOS
+
+Ensure `~/.local/bin` is in your PATH, or restart your terminal.
+
+### Permission denied
+
+Make the binary executable: `chmod +x gset`
+
+### Wrong architecture
+
+Download the correct binary for your system. Check with `uname -m` (Linux) or system info (Windows).
+
+### Script blocked by security policy (Windows)
+
+Run PowerShell as Administrator, or download the ZIP manually.
+
+## Next Steps
+
+Now that GSET is installed, head to [Quick Start](./quick-start) to write your first program!

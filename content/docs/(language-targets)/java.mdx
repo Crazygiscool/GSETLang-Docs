@@ -1,0 +1,159 @@
+---
+title: Java
+description: Transpile GSET to Java code
+icon: Coffee
+---
+
+GSET can transpile to Java, producing code compatible with Java 11+.
+
+## Basic Example
+
+**GSET Input:**
+
+```go
+function main() {
+    print("Hello, World!")
+    nums = [1, 2, 3]
+    for i in nums {
+        print(i)
+    }
+}
+
+main()
+```
+
+**Java Output:**
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+        int[] nums = new int[]{1, 2, 3};
+        for (int i : nums) {
+            System.out.println(i);
+        }
+    }
+    public static void main() {
+        System.out.println("Hello, World!");
+        int[] nums = new int[]{1, 2, 3};
+        for (int i : nums) {
+            System.out.println(i);
+        }
+    }
+}
+```
+
+<Callout type="warn">
+Note: The current transpiler generates duplicate main methods. This is a known issue being addressed.
+</Callout>
+
+## Type Mapping
+
+| GSET Type | Java Type |
+|-----------|-----------|
+| Integer | `int` |
+| Float | `double` |
+| String | `String` |
+| Boolean | `boolean` |
+| List | `int[]` / `Object[]` |
+| Null | `null` |
+
+## Features
+
+### Classes
+
+**GSET:**
+
+```go
+class Person {
+    name = ""
+    age = 0
+    
+    function init(name, age) {
+        this.name = name
+        this.age = age
+    }
+    
+    function greet() {
+        print("Hello, I'm ")
+        print(this.name)
+    }
+}
+
+p = Person.new("Alice", 30)
+p.greet()
+```
+
+**Java:**
+
+```java
+class Person {
+    public String name;
+    public int age;
+    
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+    
+    public void greet() {
+        System.out.println("Hello, I'm " + this.name);
+    }
+}
+
+// In Main.main():
+Person p = new Person("Alice", 30);
+p.greet();
+```
+
+### Arrays
+
+**GSET:**
+
+```go
+function main() {
+    nums = [1, 2, 3, 4, 5]
+    print(nums[0])
+}
+```
+
+**Java:**
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        int[] nums = new int[]{1, 2, 3, 4, 5};
+        System.out.println(nums[0]);
+    }
+}
+```
+
+## Running Java Output
+
+```bash
+# Transpile
+gset transpile hello.java
+
+# Compile
+javac Main.java
+
+# Run
+java Main
+```
+
+<Callout type="info">
+Java 11+ is required. The class name will be "Main" by default.
+</Callout>
+
+## Tips
+
+1. **Package structure**: Organize Java files in appropriate package directories
+2. **Lombok**: Consider adding Lombok annotations for less boilerplate
+3. **Gradle/Maven**: Use build tools for larger projects
+
+## Known Limitations
+
+- Duplicate main methods in some cases
+- Limited to primitive types and Object arrays
+- No generics support
+- Class patterns differ from typical Java OOP

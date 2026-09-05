@@ -1,0 +1,190 @@
+---
+title: Configuration File
+description: Use gset.conf for project-wide GSET configuration
+icon: FileCode
+---
+
+The `gset.conf` file allows you to configure GSET settings for your entire project.
+
+## Location
+
+Place `gset.conf` in your project root directory:
+
+```
+project/
+├── gset.conf
+├── src/
+│   └── main.gset
+└── tests/
+    └── test.gset
+```
+
+## Basic Structure
+
+```ini
+# Global keywords - apply to all target languages
+say=fmt.Println
+print=fmt.Print
+
+# Language-specific overrides
+ext.py.say=print
+ext.js.say=console.log
+ext.java.say=System.out.println
+```
+
+## Configuration Options
+
+### Global Keywords
+
+Define keywords that apply to all languages:
+
+```ini
+# Print functions
+say=fmt.Println
+print=fmt.Print
+log=log.Println
+
+# String functions
+len=len
+substring=substring
+```
+
+### Language-Specific Keywords
+
+Override keywords for specific targets:
+
+```ini
+# Python-specific
+ext.py.say=print
+ext.py.log=print
+
+# JavaScript-specific  
+ext.js.say=console.log
+ext.js.log=console.log
+
+# Java-specific
+ext.java.say=System.out.println
+ext.java.log=System.out.println
+```
+
+### Compiler Configuration
+
+Configure how GSET compiles/transpiles:
+
+```ini
+# Default target language
+target=go
+
+# Auto-run after transpile
+auto-run=false
+
+# Output directory
+output-dir=./dist
+```
+
+## Full Example
+
+```ini
+# Global keywords
+say=fmt.Println
+print=fmt.Print
+log=log.Println
+
+# Python output
+ext.py.say=print
+ext.py.log=print
+
+# JavaScript output
+ext.js.say=console.log
+ext.js.log=console.log
+
+# Java output
+ext.java.say=System.out.println
+ext.java.log=System.out.println
+
+# Ruby output
+ext.rb.say=puts
+ext.rb.log=puts
+
+# PHP output
+ext.php.say=echo
+
+# Compiler settings
+target=go
+auto-run=false
+```
+
+## Priority Order
+
+Keyword resolution follows this order:
+
+1. **Header keywords** (in-file, highest priority)
+2. **Config file keywords** (project-wide)
+3. **Built-in defaults** (fallback)
+
+```go
+# This header keyword overrides config file
+say=custom.Println
+---
+# Uses custom.Println
+say("hello")
+```
+
+<Callout type="warn">
+Config file keywords apply to all `.gset` files in the project, but header keywords in individual files take precedence.
+</Callout>
+
+## Validation
+
+GSET validates your config file:
+
+- Maximum 1000 keywords
+- Maximum 1MB file size
+- Valid syntax checking
+
+Errors in the config file will be logged during transpilation.
+
+## Environment Variables
+
+You can also use environment variables:
+
+```bash
+# Enable debug output
+GSET_DEBUG=1 gset run main.gset
+
+# Custom config path
+GSET_CONFIG=/path/to/custom.conf gset run main.gset
+```
+
+<Callout type="info">
+GSET looks for `gset.conf` in the current directory by default. Use `GSET_CONFIG` to specify a different location.
+</Callout>
+
+## Example Project
+
+Here's a complete example project structure:
+
+```
+my-project/
+├── gset.conf          # Configuration
+├── src/
+│   ├── main.gset      # Entry point
+│   ├── utils.gset     # Helper functions
+│   └── models/
+│       └── user.gset  # Data models
+└── tests/
+    └── test.gset      # Tests
+```
+
+With `gset.conf`:
+
+```ini
+say=fmt.Println
+debug=log.Printf
+```
+
+Running `gset run src/main.gset` will use the configured keywords.
+
+<Callout type="success">
+Now you know how to configure GSET project-wide! Continue to [Security](./(security)/features) to learn about GSET's security features.
+</Callout>

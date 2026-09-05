@@ -1,0 +1,178 @@
+---
+title: Supported Languages
+description: Complete list of target languages GSET can transpile to
+icon: Globe
+---
+
+GSET supports transpiling to **14+ programming languages**. The target language is automatically detected from your file extension.
+
+## Language Overview
+
+| Extension | Target | Print Output | Array Syntax |
+|-----------|--------|--------------|--------------|
+| `.gset` | Go | `fmt.Println()` | `[]int{1, 2, 3}` |
+| `.py` | Python | `print()` | `[1, 2, 3]` |
+| `.js` | JavaScript | `console.log()` | `[1, 2, 3]` |
+| `.ts` | TypeScript | `console.log()` | `[1, 2, 3]` |
+| `.java` | Java | `System.out.println()` | `new int[]{1, 2, 3}` |
+| `.go` | Go | `fmt.Println()` | `[]int{1, 2, 3}` |
+| `.rb` | Ruby | `puts` | `[1, 2, 3]` |
+| `.php` | PHP | `echo` | `[1, 2, 3]` |
+| `.cs` | C# | `Console.WriteLine()` | `new int[]{1, 2, 3}` |
+| `.rs` | Rust | `println!()` | `vec![1, 2, 3]` |
+| `.swift` | Swift | `print()` | `[1, 2, 3]` |
+| `.kt` | Kotlin | `println()` | `listOf(1, 2, 3)` |
+| `.cpp` | C++ | `std::cout` | `{1, 2, 3}` |
+| `.c` | C | `printf()` | `{1, 2, 3}` |
+
+<Cards>
+  <Card title="Python" href="./python" icon="FileType" />
+  <Card title="JavaScript" href="./javascript" icon="FileCode" />
+  <Card title="Go" href="./go" icon="Hexagon" />
+  <Card title="Java" href="./java" icon="Coffee" />
+  <Card title="Other Languages" href="./others" icon="Ellipsis" />
+</Cards>
+
+## Auto-Detection
+
+GSET automatically detects the target language from the file extension:
+
+```bash
+# Python target (default)
+gset transpile hello.py
+
+# JavaScript target
+gset transpile hello.js
+
+# Java target
+gset transpile hello.java
+```
+
+## Manual Selection
+
+You can also specify the target explicitly:
+
+```bash
+gset transpile --target python hello.gset
+gset transpile --target javascript hello.gset
+```
+
+## Output Comparison
+
+Here's the same GSET code transpiled to different languages:
+
+```go
+function main() {
+    print("Hello, World!")
+    nums = [1, 2, 3]
+    for i in nums {
+        print(i)
+    }
+}
+
+main()
+```
+
+## Output Comparison
+
+Here's the same GSET code transpiled to different languages:
+
+```go
+function main() {
+    print("Hello, World!")
+    nums = [1, 2, 3]
+    for i in nums {
+        print(i)
+    }
+}
+
+main()
+```
+
+### Go
+
+```go
+func main() {
+    fmt.Println("Hello, World!")
+    nums := []int{1, 2, 3}
+    for _, i := range nums {
+        fmt.Println(i)
+    }
+}
+
+func main() {
+    fmt.Println("Hello, World!")
+    nums := []int{1, 2, 3}
+    for _, i := range nums {
+        fmt.Println(i)
+    }
+}
+```
+
+### Python
+
+```python
+def main():
+    print("Hello, World!")
+    nums = [1, 2, 3]
+    for i in nums:
+        print(i)
+
+
+main()
+```
+
+### JavaScript
+
+```javascript
+function main() {
+    console.log("Hello, World!");
+    const nums = [1, 2, 3];
+    for (const i of nums) {
+        console.log(i);
+    }
+}
+
+main();
+```
+
+### Java
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+        int[] nums = new int[]{1, 2, 3};
+        for (int i : nums) {
+            System.out.println(i);
+        }
+    }
+    public static void main() {
+        System.out.println("Hello, World!");
+        int[] nums = new int[]{1, 2, 3};
+        for (int i : nums) {
+            System.out.println(i);
+        }
+    }
+}
+```
+
+## Choosing a Target
+
+Consider these factors when choosing a target language:
+
+| Factor | Recommendation |
+|--------|---------------|
+| Web development | JavaScript/TypeScript |
+| Systems programming | Go, Rust, C++ |
+| Enterprise software | Java, C# |
+| Scripting/automation | Python, Ruby |
+| Mobile apps | Swift, Kotlin |
+
+<Callout type="info">
+Each target language has specific requirements. See individual language pages for details.
+</Callout>
+
+## Next Steps
+
+Explore the language-specific pages to see detailed transpilation examples and tips for each target.

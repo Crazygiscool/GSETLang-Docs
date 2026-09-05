@@ -1,0 +1,151 @@
+---
+title: Custom Keywords
+description: Define your own function keywords in GSET
+icon: Key
+---
+
+GSET allows you to define custom keywords to replace built-in ones, giving your code a more personalized syntax.
+
+## Header-Based Keywords
+
+Define custom keywords at the top of your GSET file using a header section:
+
+```go
+say=fmt.Println
+print=fmt.Print
+show=log.Println
+---
+# Your code starts here
+
+function main() {
+    say("Hello with custom keyword!")
+    print("Inline output: ")
+    show("Logging this message")
+}
+```
+
+**Transpiled to Go:**
+
+```go
+func main() {
+    fmt.Println("Hello with custom keyword!")
+    fmt.Print("Inline output: ")
+    log.Println("Logging this message")
+}
+```
+
+## Multiple Custom Keywords
+
+Define as many custom keywords as needed:
+
+```go
+log=log.Println
+debug=fmt.Printf
+err=fmt.Fprintf
+warn=log.Printf
+---
+function main() {
+    log("Info message")
+    debug("Debug: %v\n", "value")
+    err("Error: %s\n", "something wrong")
+    warn("Warning!")
+}
+```
+
+## Language-Specific Keywords
+
+Customize keywords per target language:
+
+```go
+say=print
+log=console.log
+---
+function main() {
+    say("Python output")
+    log("JavaScript log")
+}
+```
+
+**Transpiled to Python:**
+
+```python
+def main():
+    print("Python output")
+    print("JavaScript log")
+```
+
+**Transpiled to JavaScript:**
+
+```javascript
+function main() {
+    console.log("Python output");
+    console.log("JavaScript log");
+}
+```
+
+## Use Cases
+
+### Domain-Specific Language (DSL)
+
+Create a mini DSL for your domain:
+
+```go
+load=import
+save=export
+validate=check
+---
+function main() {
+    data = load("config.json")
+    isValid = validate(data)
+    if isValid {
+        save("output.json", data)
+    }
+}
+```
+
+### Educational Code
+
+Simplify syntax for teaching:
+
+```go
+display=print
+input=readLine
+ask=input
+---
+function main() {
+    name = ask("What's your name?")
+    display("Hello, ")
+    display(name)
+}
+```
+
+### Legacy Integration
+
+Match existing codebase conventions:
+
+```go
+info=fmt.Printf
+error=log.Printf
+trace=log.Debug
+---
+function main() {
+    info("Info: %s", "message")
+    error("Error: %s", "error")
+    trace("Tracing: %d", 123)
+}
+```
+
+<Callout type="info">
+Custom keywords override built-in ones, but only within the file where they're defined. For project-wide keywords, use the config file.
+</Callout>
+
+## Best Practices
+
+1. **Use descriptive names**: Make keywords meaningful (`say` vs `s`)
+2. **Document your keywords**: Comment what each keyword does
+3. **Be consistent**: Use the same keywords across your project
+4. **Consider language targets**: Ensure keywords work for all targets
+
+<Callout type="success">
+Custom keywords give you flexibility! Continue to [Config File](./config-file) for project-wide configuration.
+</Callout>

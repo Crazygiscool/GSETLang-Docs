@@ -1,0 +1,157 @@
+---
+title: Control Flow
+description: Conditionals, branching, and decision making in GSET
+icon: GitBranch
+---
+
+GSET provides familiar conditional constructs for controlling program flow.
+
+## If-Else Statements
+
+Basic conditional logic:
+
+```go
+function main() {
+    x = 10
+    
+    if x > 5 {
+        print("x is greater than 5")
+    }
+}
+```
+
+### With Else
+
+```go
+function main() {
+    x = 3
+    
+    if x > 5 {
+        print("big")
+    } else {
+        print("small")
+    }
+}
+```
+
+### With Else If
+
+```go
+function main() {
+    x = 7
+    
+    if x > 10 {
+        print("big")
+    } else if x > 5 {
+        print("medium")
+    } else {
+        print("small")
+    }
+}
+```
+
+## Comparison Operators
+
+| Operator | Description | Example |
+|----------|-------------|---------|
+| `==` | Equal | `x == 5` |
+| `!=` | Not equal | `x != 5` |
+| `>` | Greater than | `x > 5` |
+| `<` | Less than | `x < 5` |
+| `>=` | Greater or equal | `x >= 5` |
+| `<=` | Less or equal | `x <= 5` |
+
+## Logical Operators
+
+Combine conditions with logical operators:
+
+```go
+function main() {
+    age = 25
+    hasLicense = true
+    
+    if age >= 18 && hasLicense {
+        print("Can drive")
+    }
+    
+    if age < 13 || age > 120 {
+        print("Invalid age")
+    }
+    
+    isStudent = false
+    if !isStudent {
+        print("Not a student")
+    }
+}
+```
+
+## Nested Conditionals
+
+Conditionals can be nested:
+
+```go
+function main() {
+    score = 85
+    isBonus = true
+    
+    if score >= 60 {
+        print("Passed")
+        
+        if isBonus {
+            print("With bonus points!")
+        }
+        
+        if score >= 90 {
+            print("Grade A")
+        } else if score >= 80 {
+            print("Grade B")
+        } else {
+            print("Grade C")
+        }
+    } else {
+        print("Failed")
+    }
+}
+```
+
+## Truthy and Falsy Values
+
+GSET treats certain values as boolean:
+
+```go
+function main() {
+    # Falsy values: false, 0, "", null, []
+    # Truthy values: everything else
+    
+    if 0 {
+        print("won't print")
+    }
+    
+    if 1 {
+        print("will print")  # This executes
+    }
+    
+    if "hello" {
+        print("non-empty string is truthy")
+    }
+    
+    if [] {
+        print("empty list is falsy")
+    }
+}
+```
+
+<Callout type="info">
+Understanding truthy/falsy helps write cleaner conditionals without explicit comparisons.
+</Callout>
+
+## Best Practices
+
+1. **Keep conditions simple**: Complex logic may be clearer with intermediate variables
+2. **Use meaningful variable names**: `isValid` reads better than `flag`
+3. **Prefer early returns**: Check error conditions first
+4. **Consider pattern matching**: For complex conditionals, see [Pattern Matching](./pattern-matching)
+
+<Callout type="success">
+Control flow is essential! Next, learn about [Loops](./loops) to handle repetitive tasks.
+</Callout>

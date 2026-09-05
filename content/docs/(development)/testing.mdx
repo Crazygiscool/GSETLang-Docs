@@ -1,0 +1,263 @@
+---
+title: Testing
+description: Test GSET with unit tests, benchmarks, and integration tests
+icon: FlaskConical
+---
+
+GSET includes comprehensive test coverage. This guide explains how to run and write tests.
+
+## Running Tests
+
+### Basic Tests
+
+```bash
+# Run all tests
+go test ./...
+
+# Run specific package tests
+go test ./parser
+go test ./lexer
+go test ./transpiler
+```
+
+### With Race Detector
+
+```bash
+go test -race ./...
+```
+
+This detects race conditions in concurrent code.
+
+### Verbose Output
+
+```bash
+go test -v ./...
+```
+
+### Coverage Report
+
+```bash
+# Generate coverage report
+go test -coverprofile=coverage.out ./...
+
+# View coverage in browser
+go tool cover -html=coverage.out
+```
+
+## Test Suites
+
+GSET has tests for all core packages:
+
+| Package | Tests | Description |
+|---------|-------|-------------|
+| `lexer` | 45+ | Tokenization tests |
+| `parser` | 20+ | Parsing tests |
+| `transpiler` | 20+ | Transpilation tests |
+| `security` | 8 suites | Security validation tests |
+| `config` | 2 suites | Configuration tests |
+
+## Benchmark Tests
+
+Run performance benchmarks:
+
+```bash
+# Run all benchmarks
+go test -bench=. -benchmem ./...
+
+# Run specific benchmark
+go test -bench=BenchmarkLexer -benchmem ./lexer
+```
+
+Example benchmark output:
+
+```
+goos: linux
+goarch: amd64
+pkg: gsetlang/lexer
+cpu: Intel(R) Core(TM) i7-9750H
+BenchmarkLexer-12       100000           112 ns/op          48 B/op          2 allocs/op
+```
+
+## Writing Tests
+
+### Unit Tests
+
+Create tests in `*_test.go` files:
+
+```go
+package parser
+
+import (
+    "testing"
+)
+
+func TestParseVariable(t *testing.T) {
+    input := `x = 42`
+    l := lexer.New(input)
+    p := New(l)
+    
+    program := p.ParseProgram()
+    
+    if len(p.Errors()) > 0 {
+        t.Errorf("parse errors: %v", p.Errors())
+    }
+    
+    if len(program.Statements) != 1 {
+        t.Errorf("expected 1 statement, got %d", len(program.Statements))
+    }
+}
+```
+
+### Table-Driven Tests
+
+For multiple test cases:
+
+```go
+func TestIntegerLiteral(t *testing.T) {
+    tests := []struct {
+        input    string
+        expected int
+    }{
+        {"42", 42},
+        {"0", 0},
+        {"-10", -10},
+    }
+    
+    for _, tt := range tests {
+        l := lexer.New(tt.input)
+        p := New(l)
+        
+        program := p.ParseProgram()
+        
+        if len(p.Errors()) > 0 {
+            t.Errorf("parse errors: %v", p.Errors())
+        }
+        
+        stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+        if !ok {
+            t.Errorf("expected ExpressionStatement, got %T", program.Statements[0])
+        }
+        
+        literal, ok := stmt.Expression.(*ast.IntegerLiteral)
+        if !ok {
+            t.Errorf("expected IntegerLiteral, got %T", stmt.Expression)
+        }
+        
+        if literal.Value != tt.expected {
+            t.Errorf("expected %d, got %d", tt.expected, literal.Value)
+        }
+    }
+}
+```
+
+### Integration Tests
+
+```go
+package main
+
+import (
+    "testing"
+)
+
+func TestTranspileFullProgram(t *testing.T) {
+    input := `
+function main() {
+    print("Hello, World!")
+}
+`
+    expected := `func main() {
+    fmt.Println("Hello, World!")
+}
+`
+    result := transpile(input, "go")
+    
+    if result != expected {
+        t.Errorf("expected:\n%s\ngot:\n%s", expected, result)
+    }
+}
+```
+
+## Test Coverage by Package
+
+### Lexer Tests
+
+- Token identification
+- Special characters
+- Keywords vs identifiers
+- Numbers and strings
+
+### Parser Tests
+
+- Variable declarations
+- Function definitions
+- Class definitions
+- Control flow
+- Expressions
+
+### Transpiler Tests
+
+- Go output
+- Python output
+- JavaScript output
+- Java output
+
+### Security Tests
+
+- Path traversal prevention
+- Command injection prevention
+- Input validation
+- Config validation
+
+## CI/CD Integration
+
+GitHub Actions workflow (`.github/workflows/test.yml`):
+
+```yaml
+name: Test
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      - run: go test ./...
+      - run: go test -race ./...
+      - run: go test -bench=. -benchmem ./...
+```
+
+<Callout type="info">
+All tests must pass before merging pull requests. Run tests locally before pushing.
+</Callout>
+
+## Common Test Issues
+
+### Flaky Tests
+
+If tests are flaky:
+1. Check for race conditions
+2. Add proper cleanup
+3. Use deterministic inputs
+
+### Slow Tests
+
+For slow test suites:
+1. Run in parallel: `go test -parallel 4 ./...`
+2. Skip slow tests: `go test -short ./...`
+3. Profile: `go test -cpuprofile=cpu.out ./...`
+
+## Test Naming Conventions
+
+| Prefix | Purpose |
+|--------|---------|
+| `Test` | Regular unit tests |
+| `Benchmark` | Performance benchmarks |
+| `Fuzz` | Fuzzing tests |
+| `Example` | Documentation examples |
+
+<Callout type="success">
+Now you know how to test GSET! Check the [GitHub Repository](https://github.com/Crazygiscool/GSETLang) for contribution guidelines.
+</Callout>

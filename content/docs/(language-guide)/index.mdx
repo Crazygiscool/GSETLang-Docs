@@ -1,0 +1,70 @@
+---
+title: Language Guide
+description: Complete reference for GSET syntax and features
+icon: BookOpen
+---
+
+This section provides a comprehensive reference for GSET's syntax, covering all supported language features.
+
+## Overview
+
+GSET provides a flexible syntax that supports multiple programming paradigms. Whether you prefer Python-style list comprehensions, JavaScript-style functions, or more traditional class-based OOP, GSET has you covered.
+
+<Cards>
+  <Card title="Variables" href="./variables" icon="Hash" />
+  <Card title="Control Flow" href="./control-flow" icon="GitBranch" />
+  <Card title="Loops" href="./loops" icon="Repeat" />
+  <Card title="Functions" href="./functions" icon="Warehouse" />
+  <Card title="Classes" href="./classes" icon="Box" />
+  <Card title="Error Handling" href="./error-handling" icon="TriangleAlert" />
+  <Card title="Pattern Matching" href="./pattern-matching" icon="GitBranch" />
+</Cards>
+
+## Syntax Conventions
+
+### Blocks
+
+GSET uses braces `{}` for code blocks, similar to JavaScript, Java, and Go:
+
+```go
+if condition {
+    # code here
+}
+```
+
+### Statements
+
+Statements are typically terminated by newlines. Semicolons are optional:
+
+```go
+x = 1
+y = 2  # both valid
+```
+
+### Comments
+
+Use `#` for single-line comments:
+
+```go
+function main() {
+    # This is a comment
+    print("Hello")  # inline comment
+}
+```
+
+## Comparison with Other Languages
+
+| GSET Feature | Python | JavaScript | Java |
+|-------------|--------|------------|------|
+| Variables | `x = 1` | `let x = 1` | `int x = 1` |
+| Functions | `def fn()` | `function fn()` | `void fn()` |
+| Classes | `class Foo` | `class Foo` | `class Foo` |
+| Lists | `[1, 2, 3]` | `[1, 2, 3]` | `new int[]` |
+
+<Callout type="info">
+  GSET's syntax is intentionally flexible to feel natural to developers from different backgrounds.
+</Callout>
+
+## Next Steps
+
+Start with [Variables](./variables) to understand how GSET handles data, or jump to the topic that interests you most.

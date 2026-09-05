@@ -1,0 +1,277 @@
+---
+title: Quick Start
+description: Write and run your first GSET program
+icon: Play
+---
+
+This tutorial walks you through creating, transpiling, and running your first GSET program.
+
+## Your First GSET Program
+
+Create a new file called `hello.gset`:
+
+```go
+function main() {
+    print("Hello, World!")
+}
+
+main()
+```
+
+### Run Directly
+
+GSET can interpret and run your code immediately:
+
+```bash
+gset run hello.gset
+```
+
+**Output:**
+
+```
+Hello, World!
+```
+
+### Transpile to See Output
+
+Instead of running, you can transpile to see the generated code:
+
+```bash
+gset transpile hello.gset
+```
+
+**Output (Go by default):**
+
+```go
+func main() {
+    fmt.Println("Hello, World!")
+}
+main()
+```
+
+<Callout type="info">
+GSET defaults to Go output. Use different file extensions to target other languages.
+</Callout>
+
+## Target Different Languages
+
+Change the file extension to transpile to a different language:
+
+## Target Different Languages
+
+Change the file extension to transpile to a different language:
+
+### Python (.py)
+
+```bash
+# Create a Python-targeted file
+cat > hello.py << 'EOF'
+function main() {
+    print("Hello, World!")
+}
+
+main()
+EOF
+
+# Transpile
+gset transpile hello.py
+```
+
+**Output:**
+
+```python
+def main():
+    print("Hello, World!")
+
+
+main()
+```
+
+### JavaScript (.js)
+
+```bash
+# Create a JavaScript-targeted file
+cat > hello.js << 'EOF'
+function main() {
+    print("Hello, World!")
+}
+
+main()
+EOF
+
+# Transpile
+gset transpile hello.js
+```
+
+**Output:**
+
+```javascript
+function main() {
+    console.log("Hello, World!");
+}
+
+main();
+```
+
+### Java (.java)
+
+```bash
+# Create a Java-targeted file
+cat > hello.java << 'EOF'
+function main() {
+    print("Hello, World!")
+}
+
+main()
+EOF
+
+# Transpile
+gset transpile hello.java
+```
+
+**Output:**
+
+```java
+public class Hello {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+    public static void main() {
+        System.out.println("Hello, World!");
+    }
+}
+```
+
+### Ruby (.rb)
+
+```bash
+# Create a Ruby-targeted file
+cat > hello.rb << 'EOF'
+function main() {
+    print("Hello, World!")
+}
+
+main()
+EOF
+
+# Transpile
+gset transpile hello.rb
+```
+
+**Output:**
+
+```ruby
+def main
+  puts "Hello, World!"
+end
+
+main
+```
+
+## More Examples
+
+### Variables and Types
+
+```go
+function main() {
+    x = 42
+    name = "GSET"
+    isActive = true
+    price = 3.14
+    nums = [1, 2, 3, 4, 5]
+    
+    print(x)
+    print(name)
+    print(isActive)
+    print(price)
+    print(nums)
+}
+
+main()
+```
+
+### Control Flow
+
+```go
+function main() {
+    x = 15
+    
+    if x > 10 {
+        print("big")
+    } else if x > 5 {
+        print("medium")
+    } else {
+        print("small")
+    }
+}
+
+main()
+```
+
+### Loops
+
+```go
+function main() {
+    nums = [1, 2, 3]
+    
+    # For loop
+    for i in nums {
+        print(i)
+    }
+    
+    # While loop
+    count = 3
+    while count > 0 {
+        print(count)
+        count = count - 1
+    }
+}
+
+main()
+```
+
+### Functions
+
+```go
+function greet(name) {
+    print("Hello, ")
+    print(name)
+}
+
+function factorial(n) {
+    if n <= 1 {
+        return 1
+    }
+    return n * factorial(n - 1)
+}
+
+function main() {
+    greet("World")
+    print(factorial(5))
+}
+
+main()
+```
+
+## Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `gset run <file>` | Run GSET program directly |
+| `gset transpile <file>` | Show transpiled output |
+| `gset --help` | Show help information |
+| `gset --version` | Show version |
+
+## Environment Variables
+
+### Debug Mode
+
+Enable debug logging:
+
+```bash
+GSET_DEBUG=1 gset run hello.gset
+```
+
+<Callout type="success">
+You now know the basics! Continue to the [Language Guide](../language-guide) to explore all GSET features.
+</Callout>

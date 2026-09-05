@@ -1,0 +1,8 @@
+{
+  "title": "Configuration",
+  "icon": "Settings",
+  "pages": [
+    "custom-keywords",
+    "config-file"
+  ]
+}
