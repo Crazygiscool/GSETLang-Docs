@@ -19,6 +19,12 @@ The project ships an installer script that fetches a prebuilt binary:
 curl -fsSL https://raw.githubusercontent.com/Crazygiscool/GSETLang/main/install.sh | bash
 ```
 
+The installer copies the binary to `~/.local/bin/gset`, adds `~/.local/bin` to your `PATH` (appends to `~/.bashrc` or `~/.zshrc`), and prints the installed version. Restart your shell (or `source ~/.bashrc`/`~/.zshrc`) if `gset` isn't found, then verify:
+
+```bash
+gset version
+```
+
 ## Pre-built binaries
 
 Download the latest release from the [GitHub Releases](https://github.com/Crazygiscool/GSETLang/releases) page. Releases are cross-compiled for Linux, macOS, and Windows (amd64/arm64) into `dist/` by `scripts/build.sh`.
