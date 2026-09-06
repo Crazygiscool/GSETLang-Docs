@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   BookOpen,
   Download,
@@ -19,9 +20,17 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-100/50 via-transparent to-transparent dark:from-blue-500/10" />
 
         <div className="relative max-w-4xl mx-auto text-center">
+          <Image
+            src="/logo.png"
+            alt=""
+            width={96}
+            height={96}
+            priority
+            className="mx-auto mb-6 w-20 h-20 rounded-2xl shadow-lg"
+          />
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-sm font-medium mb-6">
             <Zap className="w-4 h-4" />
-            <span>GSET v2.1.3 Released</span>
+            <span>GSET v2.2.1 Released</span>
           </div>
 
           <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-6">
@@ -48,7 +57,7 @@ export default function HomePage() {
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href="/docs/installation"
+              href="/docs/getting-started/installation"
               className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 hover:bg-white/90 rounded-lg font-medium transition-colors"
             >
               <Download className="w-5 h-5" />
@@ -201,7 +210,7 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/docs/installation"
+              href="/docs/getting-started/installation"
               className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 hover:bg-white/90 rounded-lg font-medium transition-colors"
             >
               <Download className="w-5 h-5" />
