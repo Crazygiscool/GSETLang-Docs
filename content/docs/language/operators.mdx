@@ -1,0 +1,84 @@
+---
+title: Operators
+description: Arithmetic, comparison, and logical operators in GSET.
+---
+
+<span className="badge implemented">Implemented</span>
+
+GSET operators map onto the common subset shared by all five targets.
+
+## Arithmetic
+
+| GSET | Python | JavaScript | Go |
+|------|--------|-----------|-----|
+| `+` | `+` | `+` | `+` |
+| `-` | `-` | `-` | `-` |
+| `*` | `*` | `*` | `*` |
+| `/` | `/` | `/` | `/` |
+| `%` | `%` | `%` | `%` |
+| `**` (power) | `**` | `Math.pow` | `math.Pow` |
+| unary `-x` | `-x` | `-x` | `-x` |
+
+```gset
+var a = 10
+var b = 3
+print(a + b)
+print(a * b)
+print(a - b * 2)
+print(a ** 2)
+```
+
+Python and JavaScript run this unchanged. Go needs typed ints — annotate or wrap in functions (see [the var-first rule](variables#the-go-var-first-rule)).
+
+## Comparison and logic
+
+| GSET | Python | JavaScript | Go |
+|------|--------|-----------|-----|
+| `==` | `==` | `===` (emitted as `===`? No — see note) | `==` |
+| `!=` | `!=` | `!==` note | `!=` |
+| `<`, `>`, `<=`, `>=` | same | same | same |
+| `&&` | `and` | `&&` | `&&` |
+| `\|\|` | `or` | `\|\|` | `\|\|` |
+| `!` | `not` | `!` | `!` |
+
+> **Note on `===`:** the JavaScript emitter currently produces `==`/`!=`, not strict equality. For string/number comparisons this is fine; for type-sensitive checks prefer narrower GSET code.
+
+```gset
+var age = 17
+if age >= 18 && age < 65 {
+    print("adult")
+} else if !(age >= 18) {
+    print("minor")
+}
+```
+
+## Bitwise and shifts
+
+`&`, `|`, `^`, `<<`, `>>` map to the corresponding operators in every target. They are most useful when your code is already integer-typed (e.g., the Go target).
+
+## String concatenation
+
+`+` concatenates strings in every target, and works alongside `print`'s variadic behavior:
+
+```gset
+var name = "World"
+print("Hello, " + name)
+print(1, "and", true)
+```
+
+| Target | Output for `print(1, "and", true)` |
+|--------|------------------------------------|
+| Python | `1 and True` |
+| JavaScript | `1 and true` |
+
+## Ternary
+
+A `? :` collects to `if/else` in Python, `condition ? a : b` in C-family targets:
+
+```gset
+var status = age >= 18 ? "adult" : "minor"
+```
+
+## Operator precedence
+
+GSET follows C-family precedence: unary → `**` → `* / %` → `+ -` → shifts → comparisons → equality → `& | ^` → `&&` → `||` → ternary → assignment. Parentheses are always allowed and emitted verbatim.

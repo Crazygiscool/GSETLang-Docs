@@ -1,0 +1,52 @@
+---
+title: Building GSET
+description: Build, test, and lint commands for contributors.
+---
+
+<span className="badge implemented">Implemented</span>
+
+Requirements: **Go 1.21+**. Zero external dependencies.
+
+## Build
+
+```bash
+go build -o gset .            # repo-root binary (what integration tests expect)
+make build                    # emits gset-2.2.0 and copies it to test/gset
+```
+
+## Test
+
+**The fast suite — what CI runs and what you should run:**
+
+```bash
+go test -short ./...
+```
+
+> **Never run a bare `go test ./...`.** The root `integration_test.go` (a) requires a prebuilt `./gset` and (b) hangs on `TestIntegration_TryCatch`, `_Match`, and `_ListComprehension`. `-short` skips integration tests. After any test hang, reap strays with `pkill -9 -f 'gset run'`.
+
+Parser hang-safety is covered by unit tests (`parseWithTimeout`-based regression tests in `parser/parser_test.go`).
+
+## Lint & format
+
+```bash
+gofmt -l .           # must be empty (CI enforces `go fmt ./...` + git diff --exit-code)
+go vet ./...
+```
+
+`make lint` is a silent no-op when golangci-lint isn't installed. CI pins golangci-lint **v1.62.2**.
+
+## Transpile fixtures
+
+```bash
+make test-files       # transpiles test/comprehensive.gset via test/gset
+./gset transpile test/hello.py --target go
+```
+
+## Smoke test after a change
+
+```bash
+timeout -s KILL 10 ./gset run test/hello.py            # should run
+timeout -s KILL 10 ./gset transpile test/hello.gset     # should not hang
+```
+
+`GSET_DEBUG=1` gives verbose logs to stderr.

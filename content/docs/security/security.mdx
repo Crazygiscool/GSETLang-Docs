@@ -1,0 +1,34 @@
+---
+title: Security
+description: What GSET does — and does not — protect you from.
+---
+
+<span className="badge implemented">Implemented</span>
+
+## Honest model
+
+GSET is a **transpiler with a sandbox-shaped shell**, not a sandbox. Knowing the seams keeps you safe.
+
+## What is protected
+
+| Concern | Status |
+|---------|--------|
+| Arbitrary target command execution | Controlled: only the configured compiler `<command>` (plus, for Java, the fixed `javac … && java Main` pipeline) is ever run. |
+| Generated-code explosion | A **10 MB cap** on transpiled output aborts runaway emitters. |
+| Temp file litter | `/tmp/gset_<base>.<ext>` and `Main.class` are unlinked after execution unless `--keep` is passed. |
+| Host path tampering | Only `config`, `security`, and `logger` support packages pipe paths; the transpiler uses fixed `/tmp/gset_*` names. |
+
+## What is NOT protected
+
+- **Your `.gset` source is arbitrary code in the target language.** `print`, `system` calls, file writes — whatever your GSET program transpiles and the target runtime executes *is* executed, with your user's privileges. **Run untrusted `.gset` like any untrusted program.**
+- `gset.conf` can set `compiler.<lang>.command` to anything, including a wrapper that alters behavior. **Trust the config you load.**
+- No sandboxing, no resource limits, no network policy. If you need isolation, run GSET inside a VM/container.
+
+## Configuration hygiene
+
+- Prefer the repo default config over invented `compiler.*.command` values.
+- `gset.conf` is resolved from CWD first — be aware that an attacker who can drop a `gset.conf` into a directory you `run` from can redirect compilers.
+
+## Security package
+
+The `security/` package provides the size cap and path/command validation utilities used by `transpiler`. Future hardening targets: allow/deny shell-escapes, temp-dir entropy, and `--sandbox` mode (all <span className="badge planned">Planned</span>).

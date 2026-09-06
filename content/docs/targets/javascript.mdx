@@ -1,0 +1,63 @@
+---
+title: JavaScript Target
+description: Node.js output — console.log, let, switch, and object literals.
+---
+
+<span className="badge implemented">Implemented</span>
+
+`gset run foo.js` defaults to the JavaScript target; `--target javascript` or `--target js` forces it. Generated files run with `node`.
+
+## Feature coverage
+
+| Feature | Emits |
+|---------|-------|
+| `print` | `console.log(...)` |
+| `var/val/let/const` | `let` declarations |
+| `true`/`false`/`null` | `true`/`false`/`null` |
+| arrays / maps | `[ ... ]` / `{ ... }` |
+| `if/elif/else` | `if (…) {} else if (…) {} else {}` |
+| `match/case` | `switch (…) { case …: … break; }` |
+| `while`, `for…in`, `foreach` | `while`/`for...of`/indexed loop |
+| functions | `function name (...) {...}` |
+| lambdas | `(x) => x * 2` |
+| `**` | `Math.pow(base, exp)` |
+| `try/catch/finally` | `try {} catch (e) {} finally {}` |
+| `throw` | `throw …;` |
+| list comprehensions | `items.map(x => …)` |
+
+## Brace correctness
+
+The JavaScript backend had a known defect where `else if` and `catch/finally` chains emitted one `}` too many. Both are fixed and regression-tested — every emitted `{` has exactly one matching `}`.
+
+## Verified example
+
+```bash
+$ gset run hello.js --target javascript
+```
+```javascript
+let name = "World";
+let count = 3;
+console.log("Hello, " + name);
+while (count > 0) {
+    console.log(count);
+    count = count - 1;
+}
+```
+Output:
+```
+Hello, World
+3
+2
+1
+```
+
+## Watch out
+
+- **Strict equality**: the emitter produces `==`/`!=`, not `===`/`!==`. Fine for string/number compares; use explicitly typed GSET when you need coercion-free checks.
+- **Statements need `;`**: expression statements and assignments receive a trailing `;`; some one-liners rely on ASI only where safe.
+- **Print output differs from Python**: `console.log(1, "and", true)` → `1 and true`.
+- **Classes**: `class Person {}` shells + `new` → `Person(...)` are emitted; method bodies aren't. See [Classes](../language/classes).
+
+## Runtime
+
+Requires `node` on `PATH`. Override with `compiler.javascript.command` in [`gset.conf`](../core-concepts/configuration).

@@ -1,0 +1,9 @@
+{
+  "title": "Getting Started",
+  "icon": "Zap",
+  "pages": [
+    "introduction",
+    "installation",
+    "quick-start"
+  ]
+}

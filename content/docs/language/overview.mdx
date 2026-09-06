@@ -1,0 +1,78 @@
+---
+title: Language Overview
+description: The GSET language — syntax, keywords, and the implemented subset.
+---
+
+The GSET language is a small, procedural language with C-family braces and Python-family `print`. This guide covers the **implemented** subset — everything you can reliably write today and run on at least one target.
+
+## Keywords and syntax families
+
+| Kind | GSET keyword(s) |
+|------|-----------------|
+| Variable declaration | `var`, `val`, `let`, `const` (four spellings, one meaning) |
+| Print | `print`, plus config aliases like `say`, `shout`, `echo`, `log`, `puts` |
+| Branching | `if`, `elif` / `else if`, `match`/`case`/`default`, `switch` |
+| Loops | `for`, `foreach` / `for … in`, `while`, `do … while` |
+| Functions | `function`, `fn`, `def`, lambdas `(x) => x * 2` |
+| Error handling | `try`, `catch`, `finally`, `throw` / `raise` |
+| Collections | arrays `[1, 2, 3]`, maps `{"name": "Ada"}`, sets `{1, 2, 3}` |
+| Classes | `class` (partial — see [Classes](classes)) |
+| Modules | `import`, `export` (parsed, not yet emitted) |
+
+> **Aliases are runtime-configurable.** `say` becomes `print` in Python, `console.log` in JavaScript, `fmt.Println` in Go. See [Configuration](../core-concepts/configuration).
+
+## Hello world, all targets
+
+```gset
+print("Hello, GSET!")
+```
+
+| Target | Generated line |
+|--------|----------------|
+| Python | `print("Hello, GSET!")` |
+| JavaScript | `console.log("Hello, GSET!")` |
+| Go | `fmt.Println("Hello, GSET!")` |
+| Java | `System.out.println("Hello, GSET!")` |
+| Ruby | `puts("Hello, GSET!")` |
+
+## The implemented subset in one file
+
+```gset
+var name = "Ada"
+var scores = {"Ada": 90, "Grace": 85}
+foreach name2, score in scores {
+    if score > 86 {
+        print(name2, "passes")
+    } else {
+        print(name2, "needs review")
+    }
+}
+```
+
+This runs on **go, python, and javascript** targets today.
+
+## How to read the examples in this guide
+
+Every example shows:
+
+1. GSET source, and
+2. the output for one or two targets.
+
+The **targets that compile and run** are labeled per [Portability](../core-concepts/portability). Anything marked <span className="badge planned">Planned</span> (like full class methods or Go `try`) will produce an error today — the parser stops with a clear message instead of hanging.
+
+## Feature status summary
+
+| Feature | Status |
+|---------|--------|
+| Variables, arrays, maps, index access, foreach | <span className="badge implemented">Implemented</span> |
+| if/elif/else, match/case, switch | <span className="badge implemented">Implemented</span> |
+| while, do-while, for, for…in | <span className="badge implemented">Implemented</span> |
+| Functions, return, lambdas | <span className="badge implemented">Implemented</span> |
+| try/catch/finally, throw | <span className="badge implemented">Implemented</span> (Python, JS, Ruby) |
+| List comprehensions | <span className="badge implemented">Implemented</span> (Python, JS, Go, Ruby) |
+| Classes | <span className="badge planned">Partial</span> — shell emitted, method bodies not yet generated |
+| import / export / modules | <span className="badge planned">Planned</span> — parsed but not emitted |
+
+## Next
+
+- [Variables](variables) — declarations, assignment, and the "var first" rule for Go

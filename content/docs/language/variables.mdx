@@ -1,0 +1,93 @@
+---
+title: Variables
+description: Declarations and assignment in GSET, and the Go var-first rule.
+---
+
+<span className="badge implemented">Implemented</span>
+
+## Declaring
+
+Four keywords mean **the same thing** — GSET treats them identically:
+
+```gset
+var name = "Ada"
+val count = 3
+let ok = true
+const pi = 3.14
+```
+
+All four emit an appropriate declaration per target:
+
+```python
+name = "Ada"
+count = 3
+ok = True
+pi = 3.14
+```
+
+```javascript
+let name = "Ada"
+let count = 3
+let ok = true
+let pi = 3.14
+```
+
+## Assignment
+
+A plain `x = 42` re-assigns. In GSET this is a statement-level operation; it is a **new declaration only in targets where `=` declares** (Python, JavaScript).
+
+```gset
+var count = 1
+count = count + 1
+print(count)
+```
+
+## Built-in value types
+
+| GSET | Python | JavaScript | Go |
+|------|--------|-----------|-----|
+| `"text"` | `"text"` | `"text"` | `"text"` |
+| `42` | `42` | `42` | `42` |
+| `3.14` | `3.14` | `3.14` | `3.14` |
+| `true` / `false` | `True` / `False` | `true` / `false` | `true` / `false` |
+| `null` | `None` | `null` | `nil` |
+| `[1, 2]` | `[1, 2]` | `[1, 2]` | `[]interface{}{1, 2}` |
+| `{"a": 1}` | `{"a": 1}` | `{"a": 1}` | `map[string]interface{}{"a": 1}` |
+
+## The Go "var first" rule
+
+Go is the default IR, but Go **requires** a declared variable before assignment. This compiles and runs on the Go target:
+
+```gset
+var x = 42
+print(x)
+```
+
+This does **not**:
+
+```gset
+x = 42        -- go run → undefined: x
+print(x)
+```
+
+The same program is fine on Python and JavaScript. Rule of thumb for portable code: **declare with `var` before first use**. See [Portability](../core-concepts/portability).
+
+## Type fidelity
+
+GSET is dynamically typed by design. Unless you want Go output, you usually don't declare types:
+
+```gset
+var n = 5
+var s = n * n
+print(s)
+```
+
+This generates valid Python/JS/Ruby, but Go would reject `n * n` on an `interface{}`. If you know the type, annotate it (see [Functions](functions) for typed parameters):
+
+```gset
+var n int = 5
+```
+
+## Constants
+
+`const` and `val` today behave exactly like `var` (no differing codegen per target beyond JavaScript's `let`). A true compile-time constant distinction is <span className="badge planned">Planned</span>.

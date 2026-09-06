@@ -1,0 +1,79 @@
+---
+title: Functions
+description: Function declarations, parameters, returns, and lambdas in GSET.
+---
+
+<span className="badge implemented">Implemented</span>
+
+## Function declarations
+
+Three keywords mean the same thing — `function`, `fn`, and `def`:
+
+```gset
+function square(n) {
+    return n * n
+}
+print(square(5))
+```
+
+The Java target wraps functions inside a `Main` class for you; other targets emit top-level functions (or `func` in Go).
+
+## Arguments passed positionally
+
+```gset
+function power(base, exp) {
+    return base ** exp
+}
+print(power(2, 8))
+```
+
+```python
+def power(base, exp):
+    return base ** exp
+
+print(power(2, 8))
+```
+
+```javascript
+function power(base, exp) {
+    return Math.pow(base, exp)
+}
+console.log(power(2, 8))
+```
+
+## Typed parameters
+
+If a parameter carries a type annotation, it is emitted typed:
+
+```gset
+function gcd(a int, b int) int {
+    if b == 0 {
+        return a
+    }
+    return gcd(b, a % b)
+}
+print(gcd(48, 18))
+```
+
+Typed functions are the reliable path to **Go output that compiles**, because untyped parameters produce invalid Go (`n * n` on `interface{}`). See [Portability](../core-concepts/portability).
+
+## return
+
+`return` works with and without a value. The Go emitter supplies `return` correctly even when a branch ends the function implicitly.
+
+## Lambdas
+
+```gset
+var double = (x) => x * 2
+print(double(4))
+```
+
+| Target | Output |
+|--------|--------|
+| JavaScript | `const double = (x) => x * 2;` |
+| Python | `def double(x): return x * 2` |
+| Go | `func(x interface{}) interface{} { return x * 2 }` (typed lambda recommended) |
+
+## Recursion and defaults
+
+Recursion works (see `gcd` above). Default/optional parameters are not yet modeled — pass all arguments explicitly (<span className="badge planned">Planned</span> for default values).

@@ -1,0 +1,62 @@
+---
+title: Portability
+description: The implemented/planned legend, the portable subset, and how to read the guarantee.
+---
+
+Every page in this guide claims a level of support for each feature. This page is the legend.
+
+## The badge legend
+
+| Badge | Meaning |
+|-------|---------|
+| <span className="badge implemented">Implemented</span> | The feature **exists in a code generator** and is verified for at least the listed targets. Page examples were run end-to-end, outputs included. |
+| <span className="badge planned">Planned / Partial</span> | Parsed, stubbed, or designed, but **not fully generated** (e.g. class method bodies, import/export emission, Go try/catch). Running it today may produce a runtime or compile error — never a hang. |
+
+"Implemented" always means *implemented per the caveats printed on that page*. GSET is honest about what its dynamic-typing IR can and can't do on typed targets.
+
+## The five-target portable core
+
+This subset runs unchanged on **go, python, javascript, java, ruby** (with the typed rules below):
+
+```gset
+var name     = "World"          -- string
+var count    = 3                -- integer
+var scores   = {"Ada": 90}      -- map
+var nums     = [1, 2, 3]        -- array
+print("Hello, " + name)         -- print
+while count > 0 {               -- loop
+    print(count)
+    count = count - 1
+}
+```
+
+Rules that keep it portable:
+
+1. **Declare before assign** (`var x = 42`, not `x = 42`) — required by Go.
+2. **Type the math** for Go/Java (`var n int = 5`; untyped `n * n` breaks Go).
+3. **Give function params types** for Go (`function square(n int) int`).
+4. Avoid **Go-only or Java-only** constructs — `try/catch` for Go, and `class` method bodies everywhere.
+
+## Per-target feature matrix
+
+| Feature | Python | JS | Go | Java | Ruby |
+|---------|:------:|:--:|:--:|:----:|:----:|
+| print + aliases | ✅ | ✅ | ✅ | ✅ | ✅ |
+| var / assignment | ✅ | ✅ | ✅¹ | ✅¹ | ✅ |
+| arrays, index, maps, foreach | ✅ | ✅ | ✅ | ✅ | ✅ |
+| if/elif/else | ✅ | ✅ | ✅ | ✅ | ✅ |
+| match / switch | ✅ | ✅ | ✅ | ✅ | ✅ |
+| while / for / do-while | ✅ | ✅ | ✅ | ✅ | ✅ |
+| functions, return, lambdas | ✅ | ✅ | ✅³ | ✅³ | ✅ |
+| try/catch/finally | ✅ | ✅ | ❌⁴ | ~~partial~~ | ✅ |
+| throw | ✅ | ✅ | ❌ | ❌ | ✅ |
+| list comprehensions | ✅ | ✅ | ✅ | ❌ | ✅ |
+| classes (method bodies) | ❌ | ❌ | ❌ | ❌ | ❌ |
+
+¹ Go/Java require `var`-first and typed annotations for assignment-heavy code.
+³ Typed (`int`) parameters required for Go; Java uses `var` inference.
+⁴ Go has no exceptions; `try` emits invalid Go by design.
+
+## Why GSET is honest about it
+
+The original readme promised an "any-language, all-configured" experience. GSET's reality: five emitters, a shared dynamic subset, and typed targets that demand annotations. Rather than over-claim, this guide marks exactly what runs — verified by running it.

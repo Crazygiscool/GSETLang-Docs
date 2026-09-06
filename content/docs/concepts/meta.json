@@ -1,0 +1,9 @@
+{
+  "title": "Concepts",
+  "icon": "Lightbulb",
+  "pages": [
+    "limitations",
+    "gset-vs-x",
+    "roadmap"
+  ]
+}

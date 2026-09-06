@@ -1,88 +1,90 @@
 ---
-title: Introduction
-description: GSET - Write in any language syntax, compile to any language
-icon: Code
+title: GSET
+description: One source. Every runtime. Write once in GSET, transpile to Python, JavaScript, Go, Java, or Ruby.
+icon: Gauge
 ---
 
-GSET (Generic Syntax Extension Tool) is a powerful transpiler that lets you write code using **any language's syntax** and compile it to run on **any target language's runtime**.
+# One source. Every runtime.
 
-<Cards>
-  <Card title="Getting Started" href="./(getting-started)" icon="Zap" />
-  <Card title="Language Guide" href="./(language-guide)" icon="BookOpen" />
-  <Card title="Language Targets" href="./(language-targets)" icon="Globe" />
-  <Card title="Configuration" href="./(configuration)" icon="Settings" />
-</Cards>
+GSET (**Generic Syntax Extension Tool**) is a **single-binary Go transpiler**. Write a program once in GSET's clean, braces-and-`print` syntax, and run it with **Python, JavaScript, Go, Java, or Ruby**.
 
-## Quick Example
+- Five working backends — go, python, javascript, java, ruby — each generating a complete runnable file.
+- Configurable keywords: `gset.conf` maps aliases like `say` and `shout` to each target's real print function.
+- The parser always terminates — `match/case`, `try/catch`, and list comprehensions no longer hang.
+- Single static Go binary, zero dependencies (besides the target runtime you want to execute).
 
-Write this in any syntax you prefer:
+## The 30-second example
 
-```go
-print("Hello from Python syntax!")
-nums = [1, 2, 3]
-for i in nums {
-    print(i)
+Write `hello.gset`:
+
+```gset
+var name = "World"
+var count = 3
+print("Hello, " + name)
+while count > 0 {
+    print(count)
+    count = count - 1
 }
 ```
 
-Compile to your target language:
+Now run it on three different runtimes. Same file, no changes:
 
-| Target | Output |
+```bash
+$ gset run hello.gset --target python
+Hello, World
+3
+2
+1
+
+$ gset run hello.gset --target javascript
+Hello, World
+3
+2
+1
+
+$ gset run hello.gset --target go
+Hello, World
+3
+2
+1
+```
+
+## What GSET generates (streamlined)
+
+```
+# --target python                          // --target javascript            // --target go
+name = "World"                             let name = "World"                package main
+count = 3                                  let count = 3                     import "fmt"
+print("Hello, " + name)                    console.log("Hello, " + name)
+while count > 0:                           while (count > 0) {               func main() {
+    print(count)                               console.log(count)                fmt.Println("Hello, " + name)
+    count = count - 1                          count = count - 1                 for count > 0 {
+                                                  }                                    fmt.Println(count)
+                                                                                      count = count - 1
+                                                                                  }
+                                          }
+```
+
+## Target status
+
+| Target | Status |
 |--------|--------|
-| Python | `print("Hello from Python syntax!")` |
-| JavaScript | `console.log("Hello from Python syntax!")` |
-| Java | `System.out.println("Hello from Python syntax!")` |
-| Go | `fmt.Println("Hello from Python syntax!")` |
+| Python | <span className="badge implemented">Implemented</span> |
+| JavaScript | <span className="badge implemented">Implemented</span> |
+| Go | <span className="badge implemented">Implemented</span> |
+| Java | <span className="badge implemented">Implemented</span> |
+| Ruby | <span className="badge implemented">Implemented</span> |
+| C, C++, C#, Rust, PHP, Swift, Kotlin... | <span className="badge planned">Planned</span> |
 
-## Features
+An [Implemented / Planned legend](core-concepts/portability) explains what each badge means. The Go and Java emitters have real limitations around typing and classes — see [Limitations](concepts/limitations).
 
-- **14+ Language Targets**: Python, JavaScript, Java, Go, Ruby, PHP, C#, Rust, Swift, Kotlin, C++, and more
-- **Familiar Syntax**: Write in your preferred programming style
-- **Custom Keywords**: Define your own function names
-- **List Comprehensions**: Expressive and concise array operations
-- **Pattern Matching**: Clean match statements for conditional logic
-- **Security Hardened**: Input validation, command sanitization, depth limits
+## Why GSET?
 
-## Installation
+| | Benefit |
+|---|---------|
+| 💻 **A small, learnable language** | One syntax to write, not a mental fork of five languages |
+| ⚙️ **Portable logic** | Loops, branches, functions, arrays, and maps move between runtimes |
+| 🎓 **Language learning** | See the same program written the "Python way" and the "Go way" side by side |
+| 🔧 **Honest limits** | Each target page documents exactly what compiles and what does not |
 
-Choose your platform to get started:
-
-<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-<div>
-
-### Linux
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/Crazygiscool/GSETLang/main/install.sh | bash
-```
-
-</div>
-
-<div>
-
-### macOS
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/Crazygiscool/GSETLang/main/install.sh | bash
-```
-
-</div>
-
-<div>
-
-### Windows
-
-```powershell
-irm https://raw.githubusercontent.com/Crazygiscool/GSETLang/main/install.ps1 | iex
-```
-
-</div>
-
-</div>
-
-See the [Installation](./(getting-started)/installation) guide for more options.
-
-<Callout type="info">
-  GSET is open source under CC BY-NC 4.0 license. See [GitHub](https://github.com/Crazygiscool/GSETLang) for more information.
-</Callout>
+Ready to write your first program? Start with the [Quick Start](getting-started/quick-start).

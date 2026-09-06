@@ -1,0 +1,67 @@
+---
+title: Control Flow
+description: if/elif/else, match/case, and switch in GSET.
+---
+
+<span className="badge implemented">Implemented</span>
+
+## if / elif / else
+
+```gset
+var score = 85
+if score >= 90 {
+    print("A")
+} elif score >= 80 {
+    print("B")
+} else {
+    print("C")
+}
+```
+
+`elif` and `else if` are both accepted. Output:
+
+| Target | Output |
+|--------|--------|
+| Python | `if score >= 90:` / `elif score >= 80:` / `else:` |
+| JavaScript | `if (score >= 90) {` … `else if (score >= 80) {` … `else {` |
+
+Nested blocks are indented correctly; braces are matched once per branch (regression-tested).
+
+## match / case
+
+`match` evaluates a subject and jumps to the first `case` whose literal matches; `default` is the fallback:
+
+```gset
+var score = 85
+match score {
+    case 90:
+        print("A")
+    case 80:
+        print("B")
+    default:
+        print("C")
+}
+```
+
+| Target | Output |
+|--------|--------|
+| Python | `if score == 90:` … `elif score == 80:` … `else:` |
+| JavaScript | `switch (score) { case 90: … break; … default: … }` |
+
+The Python and JavaScript paths are regression-tested against the parser-only-safety bugs of earlier versions.
+
+## switch
+
+`switch` is parsed as a synonym and emits the same forms as `match`.
+
+## Expression conditions, not statements
+
+Conditions can be any expression, including calls and comparisons:
+
+```gset
+if len(items) > 3 && is_open {
+    print("go")
+}
+```
+
+Parentheses in conditions are preserved.

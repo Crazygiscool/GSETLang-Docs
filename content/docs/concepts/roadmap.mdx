@@ -1,0 +1,36 @@
+---
+title: Roadmap
+description: Where GSET is heading — typed IR, real classes, more targets, module support.
+---
+
+This is a forward plan for the **implemented** codebase (2.2.0), not a rehash of the Master Compiler notes in `docs/Roadmap.md`. Priorities are ordered by user value.
+
+## Near term
+
+1. **Type inference for the Go/Java backends.**
+   The single biggest usability win. Infer `int`/`string`/`bool` from literals and typed parameters so `var n = 5; n = n * n` compiles in Go without annotations.
+2. **Real class method generation.**
+   Emit `constructor`, methods, and `this.`→target-native member references (Python `self`, JS `this`, Java fields) so `classes` become runnable everywhere.
+3. **Module support.**
+   `import`/`export` reach the emitters: Python/JS/Java imports, Ruby `require`, Go package layout; plus native `export`/`module.exports` output.
+
+## Medium term
+
+4. **Default/optional parameters** and variadics for functions and constructors.
+5. **File-header `key=value` keyword blocks** wired into the emitters (the config parser already reads them).
+6. **Strict-equality option** for the JS target (`===`/`!==`) and a config flag for JS print behavior.
+7. **Lists/Sets of typed elements**, so Go arrays emit `[]int` when the element type is known.
+
+## Longer term
+
+8. **New backends** — TypeScript first (shares JS emitter), then C, Rust, C#. Each needs a `*Stmt` emitter family, wrapper, and extension mapping.
+9. **A real semantic pass** — symbol table, scope, and type-hint propagation, mirroring the classic 5-phase compiler track (lexer → parser → semantic → IR → backend) documented in `docs/Roadmap.md`.
+10. **`--sandbox` mode** for the security package (exec inside a container/chroot).
+
+## Verification bar
+
+Every roadmap item ships with the same bar the current code holds:
+
+- `go test -short ./...` green, `gofmt` clean, `go vet` clean.
+- Every claimed example **actually runs** on its target (Python/JS/Go/Java at minimum).
+- The parser must never hang — stale-token guards keep that guarantee.

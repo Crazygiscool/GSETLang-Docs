@@ -1,0 +1,86 @@
+---
+title: CLI Reference
+description: gset run, gset transpile, flags, targets, and exit codes.
+---
+
+```
+USAGE
+  gset run <file> [--target <lang>] [--keep]
+  gset transpile <file> [--target <lang>] [-o outfile]
+  gset version
+  gset help
+```
+
+## gset run
+
+Transpile and execute in one step.
+
+```
+gset run <file> [--target <lang>] [--keep]
+```
+
+| Flag | Meaning |
+|------|---------|
+| `--target <lang>` | Force target: `go`, `python`, `js`/`javascript`, `java`, `ruby`. Default from file extension (`.gset`→go). |
+| `--keep` | Keep generated temp files (`/tmp/gset_<base>.<ext>`, `Main.java`, `Main.class`). |
+
+Execution:
+
+1. Target resolved (extension default, overridden by `--target`).
+2. Source transpiled; **10 MB cap** on output.
+3. Output written to `/tmp/gset_<base>.<ext>` (or `Main.java` for java).
+4. Target compiler invoked (`python3`, `node`, `go run`, java pipeline, `ruby`).
+5. Temp files unlinked unless `--keep`.
+
+## gset transpile
+
+Print generated source (1 line per statement) or save it.
+
+```
+gset transpile <file> [--target <lang>] [-o outfile]
+```
+
+| Flag | Meaning |
+|------|---------|
+| `--target <lang>` | Force target (same set). |
+| `-o outfile` | Write to a file instead of stdout. |
+
+## Targets
+
+| Argument | Extension |
+|----------|-----------|
+| `python` | `.py` |
+| `javascript`, `js` | `.js` |
+| `go` | `.go` |
+| `java` | `.java` |
+| `ruby` | `.rb` |
+
+Unknown `--target` values are rejected before parsing.
+
+## Environment & config
+
+| Variable / file | Effect |
+|-----------------|--------|
+| `GSET_DEBUG=1` | Debug logging to stderr |
+| `gset.conf` (CWD) | Keyword aliases + compiler overrides |
+| `$HOME/.gset.conf`, `/etc/gset.conf` | Fallback config |
+
+## Exit codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | success |
+| 1 | parse errors, transpile errors, or target-compiler/run failure |
+| 124/137 | killed by timeout/`OOM` (only if you wrapped GSET) |
+
+## Example session
+
+```bash
+$ gset transpile hello.gset
+package main
+...
+$ gset transpile hello.gset --target python -o hello.py
+$ gset run hello.gset --target javascript
+Hello, GSET!
+$ gset run hello.gset --target java --keep    # leaves Main.java + Main.class
+```

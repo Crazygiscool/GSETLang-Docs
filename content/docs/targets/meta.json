@@ -1,0 +1,13 @@
+{
+  "title": "Targets",
+  "icon": "Rocket",
+  "pages": [
+    "overview",
+    "python",
+    "javascript",
+    "go",
+    "java",
+    "ruby",
+    "planned"
+  ]
+}

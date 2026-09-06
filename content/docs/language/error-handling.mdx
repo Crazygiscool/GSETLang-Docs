@@ -1,0 +1,54 @@
+---
+title: Error Handling
+description: try/catch/finally and throw in GSET, with exact per-target output.
+---
+
+<span className="badge implemented">Implemented</span>
+
+## try / catch / finally
+
+```gset
+try {
+    result = 10 / 2
+    print(result)
+} catch e {
+    print("error", e)
+} finally {
+    print("done")
+}
+```
+
+| Target | Output |
+|--------|--------|
+| Python | `try:` / `except Exception as e:` / `finally:` |
+| JavaScript | `try {` … `} catch (e) {` … `} finally {` |
+| Ruby | `begin` / `rescue => e` / `ensure` / `end` |
+
+The JavaScript catch is **brace-correct** (regression-tested for duplicate `}`). Specifying an exception type uses it:
+
+```gset
+catch ValueError e {
+    print(e)
+}
+```
+
+Python receives `except ValueError as e:`.
+
+## throw / raise
+
+```gset
+if score < 0 {
+    throw "invalid score"
+}
+```
+
+| Target | Output |
+|--------|--------|
+| Python / Ruby | `raise "invalid score"` |
+| JavaScript / Java | `throw "invalid score";` |
+
+## Target caveats
+
+- **Python, JavaScript, Ruby**: fully functional — catch, finally ordering, and exception propagation all follow the target's native semantics.
+- **Java**: the try/catch/finally block is emitted in Java syntax. Since GSET functions become static methods inside `Main`, keep exceptions within method bodies for now.
+- **Go**: Go has no `try`/`catch` — the emitter currently prints C-style `try { … }` which does **not** compile under `go run`. Prefer error-return style or keep `try` only for non-Go targets. Named-exception handling in Go is <span className="badge planned">Planned</span>.

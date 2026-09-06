@@ -1,0 +1,39 @@
+---
+title: Planned Targets
+description: C, C++, C#, Rust, PHP, Swift, Kotlin, TypeScript — config stubs without emitters.
+---
+
+<span className="badge planned">Planned</span>
+
+The repository's `gset.conf` historically carried keyword sections for **C, C++, C#, Rust, PHP, Swift, Kotlin, and TypeScript** (plus print mappings per language). Those stubs make the *vision* tangible, but **no emitter exists** for them yet.
+
+## What exists today
+
+- Per-language keyword sections in `gset.conf` (e.g. `ext.cpp.*`, `ext.rs.*`) mapping `print` to `printf`, `Console.WriteLine`, `System.out.println`, `echo`, etc.
+- Pluggable per-extension compiler *commands* in configuration.
+
+## What's missing
+
+- A **code generator** per language (the emitter table in `transpiler/emit.go` stops at go/python/js/java/ruby).
+- File wrappers: `#include`/`using`/`extern crate` headers, `int main()` vs `func main()` vs iconv, Cargo manifests, and so on.
+- Type model alignment (C#/Kotlin are typed; PHP is dynamic like Python).
+
+## How a new target would be added
+
+1. Add `ext.<lang>.*` keyword mappings in `gset.conf`.
+2. Add a `cmd` entry (and `run` pipeline) under `compiler.<lang>.command`.
+3. Implement a `*Stmt`-family emitter for the target in `transpiler/emit.go`.
+4. Add the extension to the `targetExtension` map and extend `IsSupportedTarget`.
+
+`scripts/build.sh` cross-compiles the binary so a new emitter ships to every platform from one `make build`.
+
+## Suggested priority
+
+| Target | Why |
+|--------|-----|
+| TypeScript | closest to JavaScript backend; type output pairs with the Go IR |
+| C | small runtime, dominant in systems contexts |
+| Rust | memory-safe C alternative with a single-binary toolchain |
+| C# / Kotlin | typed OOP targets with existing `class` vision |
+
+The header wrapper for Go (`package main` + `import "fmt"`) is the model each new target wrapper should follow.

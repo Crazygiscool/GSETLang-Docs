@@ -1,0 +1,93 @@
+---
+title: Loops
+description: while, do…while, for, and for…in in GSET.
+---
+
+<span className="badge implemented">Implemented</span>
+
+## while
+
+```gset
+var count = 3
+while count > 0 {
+    print(count)
+    count = count - 1
+}
+```
+
+| Target | Output |
+|--------|--------|
+| Python | `while count > 0:` |
+| JavaScript | `while (count > 0) {` |
+| Go | `for count > 0 {` |
+
+The Go emitter rewrites `while` to `for`, which is why this still compiles for Go.
+
+## for (classic)
+
+```gset
+for var i = 0; i < 5; i = i + 1 {
+    print(i)
+}
+```
+
+The Go emitter rewrites it to `for i := 0; i < 5; i++ {`; JavaScript gets `for (let i = 0; i < 5; i++) {`; Python gets a `while` loop with manual counter.
+
+## for … in (foreach)
+
+The `foreach` keyword (or `for k, v in coll`) iterates collections:
+
+```gset
+var nums = [10, 20, 30]
+foreach n in nums {
+    print(n)
+}
+```
+
+| Target | Output |
+|--------|--------|
+| Python | `for n in nums:` |
+| JavaScript | `for (n of nums) {` |
+| Go | `for _, n := range nums {` |
+
+Two-variable form iterates maps/entries:
+
+```gset
+var scores = {"Ada": 90, "Grace": 85}
+foreach name2, score in scores {
+    print(name2, score)
+}
+```
+
+## do … while
+
+Runs the body at least once:
+
+```gset
+var i = 0
+do {
+    print(i)
+    i = i + 1
+} while i < 3
+```
+
+| Target | Output |
+|--------|--------|
+| Python | `while True:` + manual break on condition |
+| JavaScript / Go | `do { … } while (i < 3);` |
+
+## break / continue
+
+```gset
+foreach n in nums {
+    if n == 0 {
+        break
+    }
+    if n < 0 {
+        continue
+    }
+    print(n)
+}
+```
+
+Maps directly to each target's native keywords.

@@ -1,0 +1,59 @@
+---
+title: Classes
+description: Class syntax in GSET — today's partial support and the roadmap.
+---
+
+<span className="badge planned">Partial</span>
+
+GSET parses `class` declarations, constructor-style methods, and `new`. Today's emitters produce a **skeleton class with the member list**; method bodies and `this`-style member wiring are not yet generated.
+
+## What works today
+
+```gset
+class Person {
+    function constructor(name) {
+        this.name = name
+    }
+    function greet() {
+        print("Hi", this.name)
+    }
+}
+p = new Person("Ada")
+```
+
+The **class shell** appears in the output:
+
+```python
+class Person:
+    pass
+p = Person("Ada")
+```
+
+```javascript
+class Person {
+}
+p = Person("Ada")
+```
+
+Method bodies inside the class are not yet emitted — calling `p.greet()` today yields a runtime "undefined method" error in most targets. The constructor call on the `class` declaration works structurally.
+
+## Where you should rely on classes today
+
+- **JavaScript** — emitting a class shell + `new` is closest to usable; object-style `p.greet()` is a normal runtime concern.
+- **Java** — nested class shells inside `Main` are emitted; type declarations are required for field use.
+- **Go** — no `class`; the emitter prints a Go-invalid `class` block. Avoid classes for the Go target.
+- **Python / Ruby** — shell + `pass`/`end`; methods are not generated yet.
+
+Prefer functions + maps/dicts for behavior for now:
+
+```gset
+function make_person(name) {
+    return {"name": name, "greet": (s) => print("Hi", s)}
+}
+```
+
+## Roadmap
+
+- Emit `constructor` and methods with `this.` mapped to target-native member syntax
+- Typed class fields for Go/Java
+- `extends`/`implements`/`mixins` (currently parsed and ignored)

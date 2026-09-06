@@ -1,0 +1,63 @@
+---
+title: Python Target
+description: The most faithful backend — what runs, and what to watch for.
+---
+
+<span className="badge implemented">Implemented</span>
+
+`gset run foo.py` defaults to the Python target; `--target python` forces it. The generated file is a standalone script executed with `python3`.
+
+## That's the whole thing
+
+Python is the closest match to GSET's dynamic typing, `print`, `if/elif/else`, `while`, and `for … in` — most programs emit 1:1 Python.
+
+## Feature coverage
+
+| Feature | Emits | Runs |
+|---------|-------|------|
+| `print`, `say`, `shout`, `echo`, `log`, `puts` | `print(...)` | ✅ |
+| `var/val/let/const` | plain assignment | ✅ |
+| `true`/`false`/`null` | `True`/`False`/`None` | ✅ |
+| arrays, maps, sets | `[ ... ]`, `{ ... }`, `set([...])` | ✅ |
+| index + chained index | `nums[0]`, `matrix[i][j]` | ✅ |
+| `if/elif/else` | `if/elif/else:` | ✅ |
+| `match/case` | `if`/`elif`/`else` chain | ✅ |
+| `while`, `for…in`, `foreach` | native | ✅ |
+| functions, `return`, lambdas | `def`, `lambda`→`def` | ✅ |
+| `try/catch/finally` | `try/except/else/finally` | ✅ |
+| `throw` | `raise` | ✅ |
+| list comprehensions | `[x*2 for x in items]` | ✅ |
+| `**` | `**` | ✅ |
+| `&&`/`\|\|`/`!` | `and`/`or`/`not` | ✅ |
+
+## Verified example
+
+```bash
+$ gset run greeting.py --target python
+```
+```python
+name = "World"
+count = 3
+print("Hello, " + name)
+while count > 0:
+    print(count)
+    count = count - 1
+```
+Output:
+```
+Hello, World
+3
+2
+1
+```
+
+## Watch out
+
+- **Floordiv**: `/` on ints is float division in Python 3 — `5 / 2 → 2.5`, while Go/Java give `2`. Keep this in mind for portable integer math.
+- **Variable typing**: there is none — a `var count int` annotation is dropped, and Python happily does anything.
+- **Print separators**: `print(1, "and", true)` prints `1 and True` (spaces, booleans capitalized) — a Python formatting difference from JS output.
+- **Classes/methods**: only class shells today. See [Classes](../language/classes).
+
+## Runtime
+
+Requires `python3` on `PATH`. Override with `compiler.python.command` in [`gset.conf`](../core-concepts/configuration).

@@ -1,10 +1,13 @@
 {
   "pages": [
-    "(getting-started)",
-    "(language-guide)",
-    "(language-targets)",
-    "(configuration)",
-    "(security)",
-    "(development)"
+    "index",
+    "getting-started",
+    "language",
+    "targets",
+    "core-concepts",
+    "reference",
+    "security",
+    "concepts",
+    "development"
   ]
 }

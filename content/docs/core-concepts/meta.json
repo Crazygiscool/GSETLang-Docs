@@ -1,0 +1,9 @@
+{
+  "title": "Core Concepts",
+  "icon": "Layers",
+  "pages": [
+    "how-it-works",
+    "configuration",
+    "portability"
+  ]
+}

@@ -1,0 +1,42 @@
+---
+title: Modules
+description: import and export in GSET are parsed but not yet emitted.
+---
+
+<span className="badge planned">Planned</span>
+
+GSET recognizes `import` and `export` statements at the syntax level:
+
+```gset
+import "math"
+
+export Pi = 3.14159
+
+export add(a, b) {
+    return a + b
+}
+```
+
+## Current behavior
+
+- **Import.** The statement parses, but no `import` directive is emitted in any target output. It is effectively a no-op today.
+- **Export.** Parsed as a marker for top-level exports; the exported functions/constants are still emitted as plain top-level declarations, without an export keyword.
+
+Concretely, `import "math"` at the top of a file is accepted and ignored; you must rely on the target's builtins (e.g. `Math.pow` for JavaScript's `**`) without GSET-level imports.
+
+## What we're building
+
+- Emit per-target imports: `import` for Python/JS/Java, `require` for Ruby, `import` + package layout for Go
+- `export` wrappers (`module.exports`, `export`, Go exported identifiers)
+- A file-header `key=value` keyword block (parsed by `config/config.go` but not yet applied)
+
+## Recommendation today
+
+Keep programs single-file and self-contained. If you need a module boundary, structure the code as one file per target output with `-o`:
+
+```bash
+gset transpile lib.gset --target js -o lib.js
+gset transpile app.gset --target js -o app.js
+```
+
+and stitch includes with your target's own tooling (e.g. `<script src>`).

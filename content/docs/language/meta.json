@@ -1,0 +1,16 @@
+{
+  "title": "Language Guide",
+  "icon": "BookOpen",
+  "pages": [
+    "overview",
+    "variables",
+    "operators",
+    "arrays-maps",
+    "control-flow",
+    "loops",
+    "functions",
+    "classes",
+    "error-handling",
+    "modules"
+  ]
+}

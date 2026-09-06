@@ -1,0 +1,80 @@
+---
+title: Arrays and Maps
+description: Collections in GSET — arrays, maps, sets, index access, and foreach over them.
+---
+
+<span className="badge implemented">Implemented</span>
+
+## Arrays
+
+```gset
+var nums = [1, 2, 3, 4, 5]
+print(nums[0])          -- index access
+nums[1] = 20            -- index assignment
+print(nums)
+```
+
+Index access and chained index access (`matrix[1][0]`) are supported by the parser and all emitters.
+
+```gset
+var matrix = [[1, 2], [3, 4]]
+print(matrix[1][0])
+```
+
+## Maps (dictionaries)
+
+```gset
+var scores = {"Ada": 90, "Grace": 85}
+print(scores["Ada"])
+scores["Lin"] = 95
+```
+
+| Target | Map literal |
+|--------|-------------|
+| Python | `{"Ada": 90, "Grace": 85}` |
+| JavaScript | `{"Ada": 90, "Grace": 85}` |
+| Go | `map[string]interface{}{"Ada": 90, "Grace": 85}` |
+
+## Sets
+
+`{1, 2, 3}` becomes a `set` (Python), a `Set`-free literal (JavaScript uses `{1, 2, 3}` only where supported), or a Go map used as a set. Sets are handy syntax but only Python models them natively; prefer maps or arrays for portable code.
+
+## foreach over collections
+
+```gset
+foreach name2, score in scores {
+    print(name2, score)
+}
+```
+
+Emits `for name2, score := range scores` (Go), `for [name2, score] of Object.entries(scores)` (JavaScript), `for name2, score in scores.items()` (Python). The GSET key/value and value-only forms both work:
+
+```gset
+foreach n in nums {
+    print(n)
+}
+```
+
+## Array built-ins
+
+GSET models common collection operations via target-native code when the pattern is explicit (e.g. `len(nums)`). General purpose functions like `filter`/`map` per collection are <span className="badge planned">Planned</span> — prefer loops and list comprehensions for now:
+
+```gset
+var doubled = [x * 2 for x in nums]
+print(doubled)
+```
+
+## List comprehensions
+
+The `[expr for item in items]` and `[expr for item in items if cond]` forms transpile to native comprehensions:
+
+| Target | Output |
+|--------|--------|
+| Python | `[x * 2 for x in nums]` |
+| JavaScript | `nums.map(x => x * 2)` |
+| Go | `func() []interface{} { r := []interface{}{}; for _, x := range nums { r = append(r, x * 2) }; return r }()` |
+
+## Go notes
+
+- `scores["Ada"]` reads are fine; Go index **assignment** to a `map[string]interface{}` value is valid only when the element type matches. Declare explicitly for assignment-heavy code.
+- Arrays print as `[{1 2 3}]`-style output on the Go target (Go `fmt` of `[]interface{}`), which differs from Python/JS print output — an inherent Go formatting difference, not a bug.

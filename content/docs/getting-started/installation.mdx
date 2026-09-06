@@ -1,0 +1,67 @@
+---
+title: Installation
+description: Install GSET from source, a release binary, or a package.
+---
+
+GSET is version **2.2.0**. It has **zero external dependencies** — one static Go binary.
+
+## Requirements
+
+- To **build** from source: Go 1.21+
+- To **run** GSET output, install whichever target runtime you want to use:
+  `python3`, `node`, `go`, `java` (+ `javac`), or `ruby`
+
+## One-liner install script
+
+The project ships an installer script that fetches a prebuilt binary:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Crazygiscool/GSETLang/main/install.sh | bash
+```
+
+## Pre-built binaries
+
+Download the latest release from the [GitHub Releases](https://github.com/Crazygiscool/GSETLang/releases) page. Releases are cross-compiled for Linux, macOS, and Windows (amd64/arm64) into `dist/` by `scripts/build.sh`.
+
+```bash
+# Linux example, after downloading the archive
+tar -xzf gset-2.2.0-linux-amd64.tar.gz
+sudo mv gset /usr/local/bin/gset
+```
+
+## Build from source
+
+```bash
+git clone https://github.com/Crazygiscool/GSETLang.git
+cd GSETLang
+go build -o gset .
+```
+
+The build emits a `gset` binary in the repo root. To also copy it into `test/`, use `make build` (this produces `gset-2.2.0`).
+
+## Package managers
+
+| Package | Install |
+|---------|---------|
+| Arch Linux (AUR) | `yay -S gset` |
+| Debian/Ubuntu | `sudo dpkg -i gset_2.2.0_amd64.deb` (from releases) |
+| Windows | `winget install GSETLang` / `choco install gset` (see `plugins/packages/`) |
+
+## Verify the install
+
+```bash
+gset version
+# GSET v2.2.0
+```
+
+## What you'll need at runtime
+
+| Target | Command GSET shells out to |
+|--------|---------------------------|
+| Python | `python3` |
+| JavaScript | `node` |
+| Go | `go run` |
+| Java | `sh -c 'javac Main.java && java Main'` (configurable) |
+| Ruby | `ruby` |
+
+You can override any of these commands in [`gset.conf`](../core-concepts/configuration). If a toolchain is missing, `gset run` fails with a clear execution error — install the runtime and try again.

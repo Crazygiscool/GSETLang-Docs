@@ -1,0 +1,47 @@
+---
+title: Limitations
+description: The honest list — what GSET cannot do today, and why.
+---
+
+GSET's value is its narrow, verified subset. Here's the full, honest list of boundaries.
+
+## Typing
+
+- **No type checker.** GSET is dynamically typed. Go/Java output depends on annotations you write; wrong types are caught by the target compiler, not by GSET.
+- **Go output needs explicit types** for arithmetic and function parameters:
+  - `x = 42` without `var` → `undefined: x`
+  - untyped `n * n` → `operator * not defined on interface{}`
+  - untyped param `square(n)` → invalid math in Go
+- **Java leans on `var`** (Java 10+). Anything needing an explicit type must be annotated.
+
+## Language features
+
+| Feature | Status | Blocker |
+|---------|--------|---------|
+| Classes (method bodies) | not generated | emitters output shells only |
+| `import` / `export` | parsed, not emitted | no module model yet |
+| Default/optional params | not modeled | parser + emitters |
+| File-header `key=value` keywords | parsed, unused | config not wired to emitters |
+| `extends`/`implements`/`mixin` | parsed, ignored | class support incomplete |
+| Strict equality opts (`===`) | no emitter switch | single JS comparison output |
+
+## Target gaps
+
+- **Go**: no `try/catch` (no exceptions in Go), no classes, dynamic typing constraints above.
+- **Java**: `Main.java` model only — one file, one class; keep behavior in functions.
+- **Ruby**: dev box lacks Ruby; output verified by transpile, not run.
+- **C/C++/C#/Rust/PHP/Swift/Kotlin/TypeScript**: no emitters — config stubs only.
+
+## Other boundaries
+
+- **One file per program.** No project/module orchestration yet.
+- **10 MB output cap** when running (a safety valve, not a feature limit).
+- **`gset.conf` CWD-dependence** can surprise: keywords vanish if you run outside the config dir.
+- **Dynamic print formatting differs by target** (Python `1 and True` vs JS `1 and true`; Go array `[1 2 3]`).
+- Python `/` is float division; Go/Java are integer — portable math must be chosen carefully.
+
+## What GSET deliberately doesn't do
+
+- No garbage-collector tuning, no low-level control flow, no pointer arithmetic.
+- No Windows batch / PowerShell target.
+- No "interpreter" — GSET always produces real target source and shells to the target runtime.

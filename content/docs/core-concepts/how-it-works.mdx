@@ -1,0 +1,59 @@
+---
+title: How GSET Works
+description: The pipeline from source to zero dependency binary to five runtimes.
+---
+
+GSET is a **compiler** in the classic sense — it reads source, builds an AST, and writes target source. There is no virtual machine and no interpreter loop.
+
+## The pipeline
+
+```text
+your.gset
+   │   [lexer]
+   ▼
+ tokens ──► [parser] ──► AST (ast/ast.go)
+   │
+   ▼
+[transpiler] ──► target source (complete runnable file: wrapper + code)
+   │
+   ├── gset transpile  →  stdout or -o file.gsx
+   └── gset run        →  /tmp/gset_<base>.<ext>  →  python3/node/go/java/ruby
+```
+
+1. **Lexer** — `lexer/lexer.go`. Converts the file into a token stream. Identifiers, numbers, strings, and punctuation: `VAR`, `IDENT`, `LT`, `LBRACE`, `NEWLINE` etc.
+2. **Parser** — `parser/parser.go`. A hand-written Pratt/recursive-descent parser producing an AST whose node types live in `ast/ast.go`: `Program`, `VariableStatement`, `IfStatement`, `WhileStatement`, `FunctionStatement`, `ArrayLiteral`, `MapLiteral`, `InfixExpression`, `IndexExpression`, …
+3. **Transpiler** — `transpiler/transpiler.go` + `transpiler/emit.go`. Walks the AST five times (once per target) and emits a **complete** file with correct wrapper and imports.
+
+## Per-target emitters
+
+`transpiler/emit.go` holds a big switch that maps each AST node to target text:
+
+| Case | What it does |
+|------|--------------|
+| `go` | `package main`, `import "fmt"`, `func main()`, `while`→`for`, `foreach`→`range`, `[]interface{}` |
+| `python` | `print`, `if/elif/else:` indentation blocks, `and`/`or`/`not`, `except` |
+| `javascript` | `let`, `console.log`, `switch`, `arrow` lambdas, `Math.pow` |
+| `java` | `public class Main`, `System.out.println`, `;` suffixing, `var x` |
+| `ruby` | `puts`, `begin/rescue/ensure`, `end`-blocks |
+
+The **write path** (`Executor` in `transpiler/transpiler.go`) builds `/tmp/gset_<base>.<ext>` (or writes `Main.java` for java) and shells out to the per-extension compiler from `GetCompilers()`.
+
+## Configuration flow
+
+`config.LoadConfig` (in `config/config.go`) reads `gset.conf` → `$HOME/.gset.conf` → `/etc/gset.conf`. It produces:
+
+- the **keyword map** (applies print aliases per target), fed into every emitter so `say` becomes `print`/`console.log`/`fmt.Println`;
+- the **compiler overrides** (`compiler.<lang>.command`, `.args`, `.wrapper`, `.run`), merged over `GetCompilers()` defaults in `NewExecutor`.
+
+## Safety rails (verified)
+
+- The parser has **starvation guards** — a stale-token loop records a parse error and advances instead of spinning. `match/case`, `try/catch`, list comprehensions, and stray `export`-blocks all terminate.
+- `run` executes under a **10 MB size cap** on generated output.
+- Generated temp files are unlinked after execution unless `--keep` is passed.
+- Java runs inside a configured `sh -c` pipeline that removes `Main.class` afterward.
+
+## Where GSET diverges from a compiler
+
+It does **not** type-check. Type annotations are honored by Go/Java emitters but GSET itself has no semantic analysis yet — a genuinely "wrong-types" program is caught by the target compiler, not by GSET.
+
+Next: [Configuration](configuration).

@@ -1,0 +1,60 @@
+---
+title: GSET vs Other Tools
+description: How GSET compares to Babel, SwiftShader-style transpilers, and multi-language harnesses.
+---
+
+## GSET vs. Babel / TypeScript
+
+| | Babel / TS | GSET |
+|---|---|---|
+| Input & output | JS → JS (transform / typecheck) | **GSET → 5 languages** |
+| Typed core | Typescript has full type system | dynamic, annotation-honoring only |
+| Runtime | none added | shells to target runtimes |
+| Purpose | transpile *within* one ecosystem | port *across* ecosystems |
+
+GSET's output is genuine source in the target language — the "Babel of everything", but with the honesty that each backend supports only GSET's shared subset.
+
+## GSET vs. language-porting transpilers (2to3, 6to5, Cyclone)
+
+Those tools convert one language to its close relative (Python 2→3, ES5→ES6). GSET converts one small language to **five unrelated ones** — closer in spirit to emscripten (compile to C then target), but staying at the source level and never lowering to machine code.
+
+## GSET vs. polyglot "run anywhere" layers (GraalVM, WASM)
+
+| | Graal / WASM | GSET |
+|---|---|---|
+| Model | one runtime interprets many languages | one language transpiles to many runtimes |
+| Typing | native per language | GSET's dynamic subset |
+| Achievement | many languages, one runtime | one language, five runtimes |
+
+GSET trades language breadth for **real per-target output you can read, debug, and keep** — no VM layer.
+
+## GSET vs. multi-runtime harnesses (docker-compose, task runners)
+
+A database of "same logic, many runtimes" exists via Docker; GSET is smaller-grained: it rewrites *your statements*, not services, and does it to *source code* you can inspect and commit.
+
+## GSET vs. the original "any-language config" promise
+
+The earliest vision was config-driven: point GSET at any language via `gset.conf`, and it'd speak it. The realized version is narrower but real:
+
+| Promise (README-era) | Reality (2.2.0) |
+|----------------------|------------------|
+| *any language, via config* | five emitters; config drives keywords + compilers only |
+| *custom keywords in config* | true — `say`/`shout`/`echo` work per target |
+| *classes everywhere* | class shells; method bodies planned |
+| *run anywhere with no runtime* | needs the target's real runtime |
+
+The divergence is deliberate: emitters produce **correct** output for a **known** subset rather than plausible output for everything.
+
+## When GSET fits
+
+- Teaching a language family with one shared program.
+- Generating portable demo/kata code across runtimes.
+- Prototyping syntax experiments without installing 5 toolchains by hand.
+
+## When it doesn't
+
+- Big type-heavy codebases (Go/Java need annotations).
+- Mission-critical portability (target quirks above).
+- Anything requiring modules, classes-with-behavior, or OS-specific features.
+
+Next: [The Roadmap](roadmap).

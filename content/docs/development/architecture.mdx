@@ -1,0 +1,59 @@
+---
+title: Architecture
+description: Package layout, the emitter architecture, and how to add a target or a feature.
+---
+
+## Package layout
+
+```text
+gsetlang/
+├── main.go                 CLI: flags, run/transpile dispatch, help/version
+├── lexer/lexer.go          tokenizer
+├── parser/parser.go        recursive-descent parser (Pratt for expressions)
+├── ast/ast.go              AST node types + String() renderers
+├── transpiler/
+│   ├── transpiler.go       Translate/TranslateFor/BuildFile, Executor, GetCompilers
+│   └── emit.go             per-target emitters
+├── config/config.go        gset.conf loading, keyword map, compiler overrides
+├── security/               size cap, path/command validation
+└── logger/                 leveled logging (GSET_DEBUG)
+```
+
+`command: go build -o gset .` builds the whole CLI from `gsetlang` (module `gsetlang`). The `install/` directory is a separate `package main` installer, and `scripts/` cross-compile release binaries into `dist/`.
+
+## The emitter architecture
+
+`transpiler/emit.go` is one `emitter` struct with `target string` and `kw map[string]*Keyword`, plus per-node methods:
+
+```go
+type emitter struct { target string; kw map[string]*Keyword }
+
+func (e *emitter) statement(s ast.Statement, depth int) []string
+func (e *emitter) expr(x ast.Expression) string
+```
+
+`statement` switches on the AST node, and within each case switches on `e.target` — that's how one `while` becomes `while {` (JS), `for count > 0 {` (Go), or `while … end` (Ruby).
+
+Block formatting uses `prefixLines(indent, lines)` to indent multi-line expressions (lambdas, comprehensions) correctly — the source of several brace bugs before the fix.
+
+## Adding a new target (the checklist)
+
+1. **`transpiler/emit.go`**: add `case "<target>":` arms to each `*Stmt`/`*Expr` method (or a generic fallback similar to JavaScript).
+2. **Wrapper**: `BuildFile`/`Executor.ExecuteFor` builds the header — `package main`, `class Main`, `#!/env` as needed.
+3. **`targetExtension`**: map `<target>` → file extension in `transpiler/transpiler.go`.
+4. **`IsSupportedTarget`**: extend the allow-list.
+5. **Config**: add `compiler.<target>.command` (and `.run` for multi-step) to `gset.conf` and the defaults; add `ext.<target>.*` keyword sections.
+6. **Test**: transpile fixtures for every construct; run with the real runtime.
+
+## Adding a feature
+
+1. Add the token (if new) in `lexer/lexer.go`.
+2. Parse it in `parser/parser.go` (guards: `sameToken`-based starvation checks + `checkDepth`).
+3. Add the AST node to `ast/ast.go` with a `String()` that round-trips.
+4. Emit per target in `transpiler/emit.go`.
+5. Add regression tests (including a `parseWithTimeout` hang-guard test).
+6. `go test -short ./...`, `gofmt`, `go vet`.
+
+## Configuration wiring
+
+`config.LoadConfig()` → `config.GSETConfig` → `NewExecutor(cfg)` (merges compiler overrides over `GetCompilers()` defaults) → `ExecuteFor` feeds `cfg.GetKeywords(nil, TargetExtension(target))` into the emitter's `kw` map. That single wire is why `say`/`shout` work in both `run` and `transpile`.

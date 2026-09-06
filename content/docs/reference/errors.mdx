@@ -1,0 +1,58 @@
+---
+title: Errors
+description: What each error category means and how to fix it.
+---
+
+GSET separates three failure modes. Knowing which one you're in fixes it fastest.
+
+## 1. Parse errors
+
+Message: `Parse errors:` followed by `line N: unexpected "..." inside ...`.
+
+Causes and fixes:
+
+| Message hint | Usually means | Fix |
+|--------------|---------------|-----|
+| `unexpected "}" inside map literal` | a stray `{` opened a block/map that never closed, or you passed `export add(...)` (not yet supported) | close the brace, or drop the unsupported construct |
+| `expected X, got Y` | syntax typo (missing brace, missing `)`) | check the reported line |
+
+Parse errors exit with code 1 and **nothing runs**.
+
+## 2. Transpile errors
+
+Message: `target "c" is not supported` or similar.
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `--target <unsupported>` | target isn't one of go/python/js/java/ruby | use a supported target |
+| `no such file` | path typo | check the path |
+
+## 3. Execution errors (gset run)
+
+Message: differs per runtime, e.g. Go's `undefined: x`, Python's `Traceback`, node's `TypeError`.
+
+The target compiler caught something in the **generated code**. This is the normal GSET feedback loop:
+
+| Generated-code symptom | Likely GSET cause | Fix in GSET source |
+|------------------------|-------------------|---------------------|
+| Go `undefined: x` | assignment without `var` first | `var x = …` |
+| Go `operator * not defined on interface{}` | untyped arithmetic | `var n int = 5` or typed function params |
+| Go `invalid operation: n * n` | untyped function param | `function square(n int) int` |
+| Python/JS `NameError`/`x is not defined` | using a var before any assignment anywhere | declare it first |
+| JS `TypeError: x.greet is not a function` | class method bodies not generated | use functions + maps |
+| `command not found: python3/node/go/java/ruby` | runtime not installed | install it or set `compiler.<lang>.command` |
+| Java `cannot find symbol` | untyped/undeclared usage | typed annotations + `var` declarations |
+
+Inspect the generated code to confirm before changing your source:
+
+```bash
+gset transpile foo.gset --target go
+```
+
+## Debugging tips
+
+- **`GSET_DEBUG=1 gset run foo.gset`** shows the temp file path and run command.
+- **`--keep`** preserves `/tmp/gset_<base>.<ext>`, `Main.java`, `Main.class` for inspection.
+- **`gset transpile`** shows exactly what the target compiler sees.
+
+If your source produces a **hang** (no output, CPU pinned), that's a genuine bug in GSET — file an issue. Modern GSET terminates every parse with either output or an error. (`timeout -s KILL 10 ./gset transpile file.gset --target python` is a handy local sanity check.)
