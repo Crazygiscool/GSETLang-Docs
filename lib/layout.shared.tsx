@@ -14,15 +14,16 @@ export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
       title: (
-        <span className="inline-flex items-center gap-2">
+        <span className="inline-flex items-center gap-2 font-medium">
           <Image
-            src="/logo-long.png"
-            alt={appName}
-            width={150}
-            height={40}
+            src="/logo.png"
+            alt=""
+            width={28}
+            height={28}
             priority
-            className="h-8 w-auto"
+            className="h-7 w-auto rounded-md"
           />
+          <span>{appName}</span>
         </span>
       ),
     },
