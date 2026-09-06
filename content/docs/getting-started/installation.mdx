@@ -3,7 +3,7 @@ title: Installation
 description: Install GSET from source, a release binary, or a package.
 ---
 
-GSET is version **2.2.0**. It has **zero external dependencies** — one static Go binary.
+GSET is version **2.2.1**. It has **zero external dependencies** — one static Go binary.
 
 ## Requirements
 
@@ -25,7 +25,7 @@ Download the latest release from the [GitHub Releases](https://github.com/Crazyg
 
 ```bash
 # Linux example, after downloading the archive
-tar -xzf gset-2.2.0-linux-amd64.tar.gz
+tar -xzf gset-2.2.1-linux-amd64.tar.gz
 sudo mv gset /usr/local/bin/gset
 ```
 
@@ -37,21 +37,21 @@ cd GSETLang
 go build -o gset .
 ```
 
-The build emits a `gset` binary in the repo root. To also copy it into `test/`, use `make build` (this produces `gset-2.2.0`).
+The build emits a `gset` binary in the repo root. To also copy it into `test/`, use `make build` (this produces `gset-2.2.1`).
 
 ## Package managers
 
 | Package | Install |
 |---------|---------|
 | Arch Linux (AUR) | `yay -S gset` |
-| Debian/Ubuntu | `sudo dpkg -i gset_2.2.0_amd64.deb` (from releases) |
+| Debian/Ubuntu | `sudo dpkg -i gset_2.2.1_amd64.deb` (from releases) |
 | Windows | `winget install GSETLang` / `choco install gset` (see `plugins/packages/`) |
 
 ## Verify the install
 
 ```bash
 gset version
-# GSET v2.2.0
+# GSET v2.2.1
 ```
 
 ## What you'll need at runtime

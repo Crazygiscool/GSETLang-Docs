@@ -3,7 +3,7 @@ title: Roadmap
 description: Where GSET is heading — typed IR, real classes, more targets, module support.
 ---
 
-This is a forward plan for the **implemented** codebase (2.2.0), not a rehash of the Master Compiler notes in `docs/Roadmap.md`. Priorities are ordered by user value.
+This is a forward plan for the **implemented** codebase (2.2.1), not a rehash of the Master Compiler notes. Priorities are ordered by user value.
 
 ## Near term
 
@@ -24,7 +24,7 @@ This is a forward plan for the **implemented** codebase (2.2.0), not a rehash of
 ## Longer term
 
 8. **New backends** — TypeScript first (shares JS emitter), then C, Rust, C#. Each needs a `*Stmt` emitter family, wrapper, and extension mapping.
-9. **A real semantic pass** — symbol table, scope, and type-hint propagation, mirroring the classic 5-phase compiler track (lexer → parser → semantic → IR → backend) documented in `docs/Roadmap.md`.
+9. **A real semantic pass** — symbol table, scope, and type-hint propagation, mirroring the classic 5-phase compiler track (lexer → parser → semantic → IR → backend) documented in the Master Compiler notes.
 10. **`--sandbox` mode** for the security package (exec inside a container/chroot).
 
 ## Verification bar
