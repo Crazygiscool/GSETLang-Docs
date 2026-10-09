@@ -3,56 +3,69 @@ title: Errors
 description: What each error category means and how to fix it.
 ---
 
-GSET separates three failure modes. Knowing which one you're in fixes it fastest.
+GSET separates its failure modes. Knowing which one you're in fixes it fastest.
 
-## 1. Parse errors
+## 1. CLI and file errors
 
-Message: `Parse errors:` followed by `line N: unexpected "..." inside ...`.
+| Message | Cause | Fix |
+|---------|-------|-----|
+| `gset: cannot read <file>: No such file or directory` | path typo | check the path |
+| unknown flag / target | clap rejected the arguments | check `gset transpile --help` |
 
-Causes and fixes:
+These exit with code **1**.
 
-| Message hint | Usually means | Fix |
-|--------------|---------------|-----|
-| `unexpected "}" inside map literal` | a stray `{` opened a block/map that never closed, or you passed `export add(...)` (not yet supported) | close the brace, or drop the unsupported construct |
-| `expected X, got Y` | syntax typo (missing brace, missing `)`) | check the reported line |
+## 2. Target backend errors
 
-Parse errors exit with code 1 and **nothing runs**.
+| Message | Cause | Fix |
+|---------|-------|-----|
+| `gset: no backend for target \`python\`; supported: go` | the backend isn't implemented yet (M2) | use `-t go`, or wait for the planned backend |
 
-## 2. Transpile errors
+These exit with code **2**.
 
-Message: `target "c" is not supported` or similar.
+## 3. Parse / lowering errors
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `--target <unsupported>` | target isn't one of go/python/js/java/ruby | use a supported target |
-| `no such file` | path typo | check the path |
+Message: `error: <what> [gset-syntax] at <file>:<line>:<col>`, e.g.:
 
-## 3. Execution errors (gset run)
+```
+error: missing `)` [gset-syntax] at fib.py:1:7
+```
 
-Message: differs per runtime, e.g. Go's `undefined: x`, Python's `Traceback`, node's `TypeError`.
+Anything the grammar cannot parse is reported with a source span before any output is produced. These exit with code **1**.
 
-The target compiler caught something in the **generated code**. This is the normal GSET feedback loop:
+## 4. Diagnostic warnings
 
-| Generated-code symptom | Likely GSET cause | Fix in GSET source |
-|------------------------|-------------------|---------------------|
-| Go `undefined: x` | assignment without `var` first | `var x = …` |
-| Go `operator * not defined on interface{}` | untyped arithmetic | `var n int = 5` or typed function params |
-| Go `invalid operation: n * n` | untyped function param | `function square(n int) int` |
-| Python/JS `NameError`/`x is not defined` | using a var before any assignment anywhere | declare it first |
-| JS `TypeError: x.greet is not a function` | class method bodies not generated | use functions + maps |
-| `command not found: python3/node/go/java/ruby` | runtime not installed | install it or set `compiler.<lang>.command` |
-| Java `cannot find symbol` | untyped/undeclared usage | typed annotations + `var` declarations |
+Not failures — but worth reading:
+
+```
+warning: 5 expression(s) have no inferred type; backends will pick a default [gset-untyped] at fib.py:1:1
+```
+
+The semantic pass leaves genuinely dynamic code as `Type::Unknown`. Without a known type, the backend picks a default. Use explicit annotations to get typed output:
+
+```python
+def fib(n: int) -> int:
+    ...
+```
+
+## 5. Execution errors (gset run)
+
+The target compiler caught something in the **generated** code. This is the normal feedback loop:
+
+| Generated-code symptom | Likely cause | Fix |
+|------------------------|--------------|-----|
+| Go compile errors | a construct lowered to typeless Go | annotate the source so inference has a type |
+| `command not found: go` | runtime not installed | install the Go toolchain |
 
 Inspect the generated code to confirm before changing your source:
 
 ```bash
-gset transpile foo.gset --target go
+gset transpile fib.py -t go -o fib.go && go vet fib.go
 ```
 
 ## Debugging tips
 
-- **`GSET_DEBUG=1 gset run foo.gset`** shows the temp file path and run command.
-- **`--keep`** preserves `/tmp/gset_<base>.<ext>`, `Main.java`, `Main.class` for inspection.
-- **`gset transpile`** shows exactly what the target compiler sees.
+- **`--verbose`** prints diagnostics even when there are none.
+- **`--keep`** preserves the generated temp file for inspection after `gset run`.
+- **`GSET_DEBUG=1`** shows debug logging to stderr.
 
-If your source produces a **hang** (no output, CPU pinned), that's a genuine bug in GSET — file an issue. Modern GSET terminates every parse with either output or an error. (`timeout -s KILL 10 ./gset transpile file.gset --target python` is a handy local sanity check.)
+If GSET produces a **panic**, that's a genuine bug — file an issue.

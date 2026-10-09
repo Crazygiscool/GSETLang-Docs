@@ -1,90 +1,65 @@
 ---
 title: GSET
-description: One source. Every runtime. Write once in GSET, transpile to Python, JavaScript, Go, Java, or Ruby.
+description: Write in any language syntax, compile to any language.
 icon: Gauge
 ---
 
-# One source. Every runtime.
+# Write in any syntax. Compile to any language.
 
-GSET (**Generic Syntax Extension Tool**) is a **single-binary Go transpiler**. Write a program once in GSET's clean, braces-and-`print` syntax, and run it with **Python, JavaScript, Go, Java, or Ruby**.
+GSET (**Generic Syntax Extension Tool**) is a **Rust transpiler** built on tree-sitter. It parses real languages into a shared, typed IR and emits complete runnable source for a target backend.
 
-- Five working backends — go, python, javascript, java, ruby — each generating a complete runnable file.
-- Configurable keywords: `gset.conf` maps aliases like `say` and `shout` to each target's real print function.
-- The parser always terminates — `match/case`, `try/catch`, and list comprehensions no longer hang.
-- Single static Go binary, zero dependencies (besides the target runtime you want to execute).
+- **Any-language input** — frontends parse Python today, with JavaScript/TypeScript next and more planned.
+- **Any-language output** — the Go backend works today; Python, JavaScript, Java, and Ruby backends arrive with M2.
+- **Honest by design** — backends declare a capability matrix instead of silently dropping constructs, and each milestone vehicle is the target language's own syntax checker.
 
 ## The 30-second example
 
-Write `hello.gset`:
+Write `fib.py`:
 
-```gset
-var name = "World"
-var count = 3
-print("Hello, " + name)
-while count > 0 {
-    print(count)
-    count = count - 1
-}
+```python
+def fib(n: int) -> int:
+    if n < 2:
+        return n
+    return fib(n - 1) + fib(n - 2)
+
+print(fib(10))
 ```
 
-Now run it on three different runtimes. Same file, no changes:
+Transpile it to Go:
 
 ```bash
-$ gset run hello.gset --target python
-Hello, World
-3
-2
-1
-
-$ gset run hello.gset --target javascript
-Hello, World
-3
-2
-1
-
-$ gset run hello.gset --target go
-Hello, World
-3
-2
-1
+$ gset transpile fib.py -t go -o fib.go
+$ go run fib.go
+55
 ```
 
-## What GSET generates (streamlined)
+Or let `gset run` do both:
 
-```
-# --target python                          // --target javascript            // --target go
-name = "World"                             let name = "World"                package main
-count = 3                                  let count = 3                     import "fmt"
-print("Hello, " + name)                    console.log("Hello, " + name)
-while count > 0:                           while (count > 0) {               func main() {
-    print(count)                               console.log(count)                fmt.Println("Hello, " + name)
-    count = count - 1                          count = count - 1                 for count > 0 {
-                                                  }                                    fmt.Println(count)
-                                                                                      count = count - 1
-                                                                                  }
-                                          }
+```bash
+$ gset run fib.py -t go
+55
 ```
 
 ## Target status
 
-| Target | Status |
-|--------|--------|
-| Python | <span className="badge implemented">Implemented</span> |
-| JavaScript | <span className="badge implemented">Implemented</span> |
+| Backend | Status |
+|---------|--------|
 | Go | <span className="badge implemented">Implemented</span> |
-| Java | <span className="badge implemented">Implemented</span> |
-| Ruby | <span className="badge implemented">Implemented</span> |
-| C, C++, C#, Rust, PHP, Swift, Kotlin... | <span className="badge planned">Planned</span> |
+| Python | <span className="badge planned">Planned (M2)</span> |
+| JavaScript | <span className="badge planned">Planned (M2)</span> |
+| Java | <span className="badge planned">Planned (M2)</span> |
+| Ruby | <span className="badge planned">Planned (M2)</span> |
+| C, C++, Rust, C#, … | <span className="badge planned">Planned</span> |
 
-An [Implemented / Planned legend](core-concepts/portability) explains what each badge means. The Go and Java emitters have real limitations around typing and classes — see [Limitations](concepts/limitations).
+An [Implemented / Planned legend](core-concepts/portability) explains what each badge means.
 
 ## Why GSET?
 
 | | Benefit |
 |---|---------|
-| 💻 **A small, learnable language** | One syntax to write, not a mental fork of five languages |
-| ⚙️ **Portable logic** | Loops, branches, functions, arrays, and maps move between runtimes |
-| 🎓 **Language learning** | See the same program written the "Python way" and the "Go way" side by side |
-| 🔧 **Honest limits** | Each target page documents exactly what compiles and what does not |
+| 💻 **Read, debug, keep the output** | Real source in the target language — no VM layer |
+| ⚙️ **Mechanised correctness** | Corpus output must pass each target's own syntax checker |
+| 🔧 **Honest limits** | The capability matrix turns "silently wrong output" into typed errors |
+| 🚀 **Fast by design** | Readiness optimised: a `gset` invocation that only transpiles never loads an unused grammar |
 
-Ready to write your first program? Start with the [Quick Start](getting-started/quick-start).
+Ready to try it? Start with the [Quick Start](getting-started/quick-start).

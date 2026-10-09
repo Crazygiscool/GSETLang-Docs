@@ -1,59 +1,55 @@
 ---
 title: How GSET Works
-description: The pipeline from source to zero dependency binary to five runtimes.
+description: The pipeline — tree-sitter frontend, typed IR, semantic pass, backend emitter.
 ---
 
-GSET is a **compiler** in the classic sense — it reads source, builds an AST, and writes target source. There is no virtual machine and no interpreter loop.
+GSET is a **compiler** in the classic sense: it reads source, builds an IR, and writes target source. There is no virtual machine and no interpreter loop.
 
 ## The pipeline
 
 ```text
-your.gset
-   │   [lexer]
+fib.py
+   │   [tree-sitter grammar]
    ▼
- tokens ──► [parser] ──► AST (ast/ast.go)
-   │
-   ▼
-[transpiler] ──► target source (complete runnable file: wrapper + code)
-   │
-   ├── gset transpile  →  stdout or -o file.gsx
-   └── gset run        →  /tmp/gset_<base>.<ext>  →  python3/node/go/java/ruby
+ concrete syntax tree ──► [lowering] ──► typed IR (spans, types, diagnostics)
+                                          │
+                                          ▼
+                              [semantic pass]  scope + type inference
+                                          │
+                                          ▼
+                              [backend emitter] ──► target source (complete runnable file)
+                                          │
+                                          ├── gset transpile  →  stdout or -o file
+                                          └── gset run        →  temp dir  →  go run
 ```
 
-1. **Lexer** — `lexer/lexer.go`. Converts the file into a token stream. Identifiers, numbers, strings, and punctuation: `VAR`, `IDENT`, `LT`, `LBRACE`, `NEWLINE` etc.
-2. **Parser** — `parser/parser.go`. A hand-written Pratt/recursive-descent parser producing an AST whose node types live in `ast/ast.go`: `Program`, `VariableStatement`, `IfStatement`, `WhileStatement`, `FunctionStatement`, `ArrayLiteral`, `MapLiteral`, `InfixExpression`, `IndexExpression`, …
-3. **Transpiler** — `transpiler/transpiler.go` + `transpiler/emit.go`. Walks the AST five times (once per target) and emits a **complete** file with correct wrapper and imports.
+1. **Frontend** — a tree-sitter grammar parses the source; a query-driven lowering pass walks the concrete syntax tree and produces the IR through a validating builder.
+2. **IR** — every node carries a source span, a type (possibly `Unknown`), and its language. Imports are first-class IR items that backends are *required* to consume.
+3. **Semantic pass** — resolves lexical scopes (a function-local binding shadows a module-level one rather than widening it) and fills types from literals, annotations, arithmetic, calls, and collection elements. Genuinely dynamic code stays `Type::Unknown` and propagates.
+4. **Backend** — a `Backend` trait with a capability matrix, emitting through a `CodeWriter` that owns indentation.
 
-## Per-target emitters
+## Capability matrix instead of silent drops
 
-`transpiler/emit.go` holds a big switch that maps each AST node to target text:
+Backends declare support *before* emission:
 
-| Case | What it does |
-|------|--------------|
-| `go` | `package main`, `import "fmt"`, `func main()`, `while`→`for`, `foreach`→`range`, `[]interface{}` |
-| `python` | `print`, `if/elif/else:` indentation blocks, `and`/`or`/`not`, `except` |
-| `javascript` | `let`, `console.log`, `switch`, `arrow` lambdas, `Math.pow` |
-| `java` | `public class Main`, `System.out.println`, `;` suffixing, `var x` |
-| `ruby` | `puts`, `begin/rescue/ensure`, `end`-blocks |
+```rust
+enum Support { Native, Desugared, Unsupported }
 
-The **write path** (`Executor` in `transpiler/transpiler.go`) builds `/tmp/gset_<base>.<ext>` (or writes `Main.java` for java) and shells out to the per-extension compiler from `GetCompilers()`.
+trait Backend {
+    fn id(&self) -> TargetId;
+    fn capability(&self, c: Capability) -> Support;
+    fn emit_module(&self, m: &Module, w: &mut CodeWriter) -> Result<(), Diagnostic>;
+}
+```
 
-## Configuration flow
+The driver queries `capability()` per construct before emitting. Unsupported becomes a typed error or an explicit `// gset(unsupported):` marker — never a silent `return nil`.
 
-`config.LoadConfig` (in `config/config.go`) reads `gset.conf` → `$HOME/.gset.conf` → `/etc/gset.conf`. It produces:
+## Startup design
 
-- the **keyword map** (applies print aliases per target), fed into every emitter so `say` becomes `print`/`console.log`/`fmt.Println`;
-- the **compiler overrides** (`compiler.<lang>.command`, `.args`, `.wrapper`, `.run`), merged over `GetCompilers()` defaults in `NewExecutor`.
+Invocation latency is the dominant cost in a per-invocation transpiler. The binary does not initialise any grammar, and does not populate any language registry, until `transpile` or `run` has established which language is actually needed. Grammars are **Cargo features**, so a grammar is only linked into binaries that use it.
 
-## Safety rails (verified)
+## The gate that mechanises correctness
 
-- The parser has **starvation guards** — a stale-token loop records a parse error and advances instead of spinning. `match/case`, `try/catch`, list comprehensions, and stray `export`-blocks all terminate.
-- `run` executes under a **10 MB size cap** on generated output.
-- Generated temp files are unlinked after execution unless `--keep` is passed.
-- Java runs inside a configured `sh -c` pipeline that removes `Main.class` afterward.
-
-## Where GSET diverges from a compiler
-
-It does **not** type-check. Type annotations are honored by Go/Java emitters but GSET itself has no semantic analysis yet — a genuinely "wrong-types" program is caught by the target compiler, not by GSET.
+Every corpus program must transpile into output that passes the target language's **own** syntax checker — today `gofmt` and `go vet`; from M2 the full set (`gofmt`/`go vet`, `python -m py_compile`, `node --check`, `javac`, `ruby -c`). `&&` into Ruby, `??` into Go, `[]interface{}{}` into Java: none of it can survive this gate.
 
 Next: [Configuration](configuration).

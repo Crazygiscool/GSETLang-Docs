@@ -3,32 +3,23 @@ title: Security
 description: What GSET does — and does not — protect you from.
 ---
 
-<span className="badge implemented">Implemented</span>
+GSET is a **transpiler**, not a sandbox. Most of the Go-era security file (size caps, path/command validation around a config loader) died with `gset.conf`. Knowing the seams keeps you safe.
 
-## Honest model
-
-GSET is a **transpiler with a sandbox-shaped shell**, not a sandbox. Knowing the seams keeps you safe.
-
-## What is protected
+## The honest model
 
 | Concern | Status |
 |---------|--------|
-| Arbitrary target command execution | Controlled: only the configured compiler `<command>` (plus, for Java, the fixed `javac … && java Main` pipeline) is ever run. |
-| Generated-code explosion | A **10 MB cap** on transpiled output aborts runaway emitters. |
-| Temp file litter | `/tmp/gset_<base>.<ext>` and `Main.class` are unlinked after execution unless `--keep` is passed. |
-| Host path tampering | Only `config`, `security`, and `logger` support packages pipe paths; the transpiler uses fixed `/tmp/gset_*` names. |
+| What `gset` runs | Only the target runtime (`go run`) for `gset run`; `gset transpile` only reads a file and prints source. |
+| Networking | None in the core. There is no network code in the transpile path. |
+| Configuration load | None — no config file is read, so there is no config file to tamper with. |
+| Supply chain | The build is Rust; `cargo-deny` checks advisories and licenses in CI. |
 
 ## What is NOT protected
 
-- **Your `.gset` source is arbitrary code in the target language.** `print`, `system` calls, file writes — whatever your GSET program transpiles and the target runtime executes *is* executed, with your user's privileges. **Run untrusted `.gset` like any untrusted program.**
-- `gset.conf` can set `compiler.<lang>.command` to anything, including a wrapper that alters behavior. **Trust the config you load.**
-- No sandboxing, no resource limits, no network policy. If you need isolation, run GSET inside a VM/container.
+- **Your source is arbitrary code in the target language.** Whatever your program transpiles to — file writes, subprocess calls, network access — the target runtime executes with **your user's privileges**. **Run untrusted source like any untrusted program.**
+- **No sandboxing, no resource limits, no network policy.** If you need isolation, run GSET inside a VM/container.
+- **Generated code is only as typed as the emitter.** Dynamic input can infer to a wrong-but-valid type; the syntax-check gate guarantees *valid* syntax, not *semantically identical* behavior.
 
-## Configuration hygiene
+## Future hardening
 
-- Prefer the repo default config over invented `compiler.*.command` values.
-- `gset.conf` is resolved from CWD first — be aware that an attacker who can drop a `gset.conf` into a directory you `run` from can redirect compilers.
-
-## Security package
-
-The `security/` package provides the size cap and path/command validation utilities used by `transpiler`. Future hardening targets: allow/deny shell-escapes, temp-dir entropy, and `--sandbox` mode (all <span className="badge planned">Planned</span>).
+The security surface of the Go version is not being ported. If isolation matters, the honest place for it is the Rust rewrite's `gset run` — running generated code in a container/chroot is on the roadmap (`--sandbox` mode) but is <span className="badge planned">Planned</span>.

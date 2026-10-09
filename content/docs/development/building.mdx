@@ -3,50 +3,54 @@ title: Building GSET
 description: Build, test, and lint commands for contributors.
 ---
 
-<span className="badge implemented">Implemented</span>
-
-Requirements: **Go 1.21+**. Zero external dependencies.
+Requirements: Rust from `rust-toolchain.toml` (**1.98.1**). The workspace toolchain is pinned.
 
 ## Build
 
 ```bash
-go build -o gset .            # repo-root binary (what integration tests expect)
-make build                    # emits gset-2.2.1 and copies it to test/gset
+cargo build --workspace          # debug
+cargo build --release --workspace
 ```
 
-## Test
+The binary is `target/release/gset` — the installed name is `gset`, not `gset-cli`, and packaging preserves it.
 
-**The fast suite — what CI runs and what you should run:**
+## The full CI suite
+
+Every check must pass; CI runs exactly these:
 
 ```bash
-go test -short ./...
+cargo build --workspace --all-targets
+cargo test --workspace
+cargo clippy --workspace --all-targets -- -D warnings
+cargo fmt --all -- --check
+cargo deny check
 ```
 
-> **Never run a bare `go test ./...`.** The root `integration_test.go` (a) requires a prebuilt `./gset` and (b) hangs on `TestIntegration_TryCatch`, `_Match`, and `_ListComprehension`. `-short` skips integration tests. After any test hang, reap strays with `pkill -9 -f 'gset run'`.
+`cargo-audit` is deliberately not used — `cargo deny check advisories` reads the same RustSec advisory database.
 
-Parser hang-safety is covered by unit tests (`parseWithTimeout`-based regression tests in `parser/parser_test.go`).
-
-## Lint & format
+## The M1 gate
 
 ```bash
-gofmt -l .           # must be empty (CI enforces `go fmt ./...` + git diff --exit-code)
-go vet ./...
+cargo run -p gset-cli -- transpile tests/corpus/py/fib.py --to go -o /tmp/fib.go
+gofmt -e /tmp/fib.go        # clean
+go vet /tmp/fib.go          # clean
 ```
 
-`make lint` is a silent no-op when golangci-lint isn't installed. CI pins golangci-lint **v1.62.2**.
+This is the milestone gate that proves the cross-language pipeline end to end.
 
-## Transpile fixtures
+## Grammars are features
+
+The `python` frontend is behind a Cargo feature. Verify feature-gating with:
 
 ```bash
-make test-files       # transpiles test/comprehensive.gset via test/gset
-./gset transpile test/hello.py --target go
+cargo build --no-default-features          # no grammar linked
 ```
 
 ## Smoke test after a change
 
 ```bash
-timeout -s KILL 10 ./gset run test/hello.py            # should run
-timeout -s KILL 10 ./gset transpile test/hello.gset     # should not hang
+cargo run -p gset-cli -- transpile tests/corpus/py/fib.py -t go
+cargo run -p gset-cli -- run tests/corpus/py/fib.py -t go     # 55
 ```
 
 `GSET_DEBUG=1` gives verbose logs to stderr.

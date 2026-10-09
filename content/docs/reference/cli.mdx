@@ -1,86 +1,87 @@
 ---
 title: CLI Reference
-description: gset run, gset transpile, flags, targets, and exit codes.
+description: gset transpile, gset run, version flags, targets, and exit codes.
 ---
 
 ```
 USAGE
-  gset run <file> [--target <lang>] [--keep]
-  gset transpile <file> [--target <lang>] [-o outfile]
+  gset transpile <file> [-t|--to <target>] [-f|--from <lang>] [-o outfile] [--verbose]
+  gset run <file> [-t|--to <target>] [-f|--from <lang>] [--keep]
   gset version
   gset help
 ```
 
-## gset run
-
-Transpile and execute in one step.
-
-```
-gset run <file> [--target <lang>] [--keep]
-```
-
-| Flag | Meaning |
-|------|---------|
-| `--target <lang>` | Force target: `go`, `python`, `js`/`javascript`, `java`, `ruby`. Default from file extension (`.gset`→go). |
-| `--keep` | Keep generated temp files (`/tmp/gset_<base>.<ext>`, `Main.java`, `Main.class`). |
-
-Execution:
-
-1. Target resolved (extension default, overridden by `--target`).
-2. Source transpiled; **10 MB cap** on output.
-3. Output written to `/tmp/gset_<base>.<ext>` (or `Main.java` for java).
-4. Target compiler invoked (`python3`, `node`, `go run`, java pipeline, `ruby`).
-5. Temp files unlinked unless `--keep`.
-
 ## gset transpile
 
-Print generated source (1 line per statement) or save it.
+Parse a source file and print the generated source to stdout:
 
 ```
-gset transpile <file> [--target <lang>] [-o outfile]
+gset transpile <PATH> [OPTIONS]
 ```
 
 | Flag | Meaning |
 |------|---------|
-| `--target <lang>` | Force target (same set). |
-| `-o outfile` | Write to a file instead of stdout. |
+| `-t, --to <TARGET>` | Target language to emit. Default `go`. `--target` is accepted as an alias. |
+| `-f, --from <LANG>` | Source language, overriding the one inferred from the file extension. |
+| `-o, --output <OUTFILE>` | Write the result here instead of stdout. |
+| `--verbose` | Print diagnostics even when there are none. |
+
+## gset run
+
+Transpile, then execute on the target runtime:
+
+```
+gset run <PATH> [OPTIONS]
+```
+
+| Flag | Meaning |
+|------|---------|
+| `-t, --to <TARGET>` | Target language to emit before running. Default `go`. |
+| `-f, --from <LANG>` | Source language, overriding the one inferred from the file extension. |
+| `--keep` | Keep the generated file instead of deleting it after the run. |
+
+Execution flow:
+
+1. Source language resolved (extension default, overridden by `--from`).
+2. Source lowered and emitted for the target (`--to`, default `go`).
+3. Output written to a per-invocation temp directory.
+4. Target runtime invoked (`go run` today) and its exit code propagated.
+5. Temp directory removed unless `--keep`.
 
 ## Targets
 
-| Argument | Extension |
-|----------|-----------|
-| `python` | `.py` |
-| `javascript`, `js` | `.js` |
-| `go` | `.go` |
-| `java` | `.java` |
-| `ruby` | `.rb` |
+| Target | Extension | Status |
+|--------|-----------|--------|
+| `go` / `golang` | `.go` | <span className="badge implemented">Implemented</span> |
+| `python` / `py` / `python3` | `.py` | <span className="badge planned">Planned (M2)</span> |
+| `javascript` / `js` / `node` | `.js` | <span className="badge planned">Planned (M2)</span> |
+| `java` | `.java` | <span className="badge planned">Planned (M2)</span> |
+| `ruby` / `rb` | `.rb` | <span className="badge planned">Planned (M2)</span> |
 
-Unknown `--target` values are rejected before parsing.
+Any other value is rejected before parsing.
 
 ## Environment & config
 
 | Variable / file | Effect |
 |-----------------|--------|
 | `GSET_DEBUG=1` | Debug logging to stderr |
-| `gset.conf` (CWD) | Keyword aliases + compiler overrides |
-| `$HOME/.gset.conf`, `/etc/gset.conf` | Fallback config |
+
+There is **no configuration file** in the Rust rewrite — the Go-era `gset.conf` was deleted. A `gset.toml` (default target, interpreter paths, project root, dependency search roots) is planned but not yet implemented.
 
 ## Exit codes
 
 | Code | Meaning |
 |------|---------|
 | 0 | success |
-| 1 | parse errors, transpile errors, or target-compiler/run failure |
-| 124/137 | killed by timeout/`OOM` (only if you wrapped GSET) |
+| 1 | parse/lowering errors, unreadable input files |
+| 2 | target or pipeline errors (e.g. `no backend for target`) |
 
 ## Example session
 
 ```bash
-$ gset transpile hello.gset
-package main
-...
-$ gset transpile hello.gset --target python -o hello.py
-$ gset run hello.gset --target javascript
-Hello, GSET!
-$ gset run hello.gset --target java --keep    # leaves Main.java + Main.class
+$ gset transpile fib.py -t go              # Go source on stdout (with any warnings)
+$ gset transpile fib.py -t go -o fib.go    # save to a file
+$ gset run fib.py -t go                    # print fib(10) => 55
+$ gset transpile fib.py -t python
+gset: no backend for target `python`; supported: go
 ```

@@ -1,36 +1,37 @@
 ---
 title: Roadmap
-description: Where GSET is heading — typed IR, real classes, more targets, module support.
+description: Where GSET is heading — all five backends, more frontends, dependency resolution, cutover.
 ---
 
-This is a forward plan for the **implemented** codebase (2.2.1), not a rehash of the Master Compiler notes. Priorities are ordered by user value.
+This is the forward plan for the Rust rewrite, ordered by the milestones in the engineering plan (`docs/RUST_REWRITE_PLAN.md` in the repo). It replaces the Go-era roadmap entirely.
 
-## Near term
+## Done
 
-1. **Type inference for the Go/Java backends.**
-   The single biggest usability win. Infer `int`/`string`/`bool` from literals and typed parameters so `var n = 5; n = n * n` compiles in Go without annotations.
-2. **Real class method generation.**
-   Emit `constructor`, methods, and `this.`→target-native member references (Python `self`, JS `this`, Java fields) so `classes` become runnable everywhere.
-3. **Module support.**
-   `import`/`export` reach the emitters: Python/JS/Java imports, Ruby `require`, Go package layout; plus native `export`/`module.exports` output.
+| Milestone | What shipped |
+|-----------|--------------|
+| **M0** | Baseline & scaffolding: pinned toolchain, workspace, Go startup baseline, defect fixtures, CI |
+| **M1** | Pipeline proof: Python → IR → Go. IR, semantic pass, CLI (`transpile`/`run`/`version`), and the gate: emitted `fib.go` passes `gofmt` and `go vet`. Startup is ~1.86 ms median — faster than the Go baseline. |
 
-## Medium term
+## In progress — M2
 
-4. **Default/optional parameters** and variadics for functions and constructors.
-5. **File-header `key=value` keyword blocks** wired into the emitters (the config parser already reads them).
-6. **Strict-equality option** for the JS target (`===`/`!==`) and a config flag for JS print behavior.
-7. **Lists/Sets of typed elements**, so Go arrays emit `[]int` when the element type is known.
+- JavaScript/TypeScript frontend (shared IR lowering path).
+- The remaining four backends: Python, JavaScript, Java, Ruby.
+- The **acceptance criterion** that mechanises correctness: every corpus case must pass the target's own syntax checker (`gofmt`/`go vet`, `python -m py_compile`, `node --check`, `javac`, `ruby -c`), gated on toolchain presence in CI.
+- Semantic round-trip property test: `IR → Python → IR` equivalence under normalisation.
 
-## Longer term
+## Next
 
-8. **New backends** — TypeScript first (shares JS emitter), then C, Rust, C#. Each needs a `*Stmt` emitter family, wrapper, and extension mapping.
-9. **A real semantic pass** — symbol table, scope, and type-hint propagation, mirroring the classic 5-phase compiler track (lexer → parser → semantic → IR → backend) documented in the Master Compiler notes.
-10. **`--sandbox` mode** for the security package (exec inside a container/chroot).
+| Milestone | Scope |
+|-----------|-------|
+| **M3** | Frontend breadth: Go, Java, Ruby, then C/C++ and Rust frontends |
+| **M4** | Local project graph: multi-file/multi-directory, search roots, package-qualified imports, cycle detection, parallel lowering, content-hash caching |
+| **M5** | Ecosystem dependency resolution: pip, npm, Cargo, Maven, Go modules — lockfile-first, with an honest `LocalPath / LockedRemote / Sdk / OpaqueForeign` boundary |
+| **M6** | Cutover: rewrite CI and packaging for Rust, preserve release asset names and the one-liner install, rewrite docs, delete the Go tree |
 
 ## Verification bar
 
-Every roadmap item ships with the same bar the current code holds:
+Every roadmap item ships against the same bar:
 
-- `go test -short ./...` green, `gofmt` clean, `go vet` clean.
-- Every claimed example **actually runs** on its target (Python/JS/Go/Java at minimum).
-- The parser must never hang — stale-token guards keep that guarantee.
+- `cargo build --workspace --all-targets`, `cargo test --workspace`, `cargo clippy -D warnings`, `cargo fmt --check`, `cargo deny check` all green.
+- Every claimed example **actually runs** (transpile + target syntax check).
+- Startup is benchmark-gated: a regression in `gset version` latency fails the build.

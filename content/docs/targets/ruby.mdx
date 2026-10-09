@@ -1,57 +1,25 @@
 ---
 title: Ruby Target
-description: puts, begin/rescue/ensure, and Ruby-flavored output.
+description: Planned backend — puts, begin/rescue/ensure, and the strictest gate.
 ---
 
-<span className="badge implemented">Implemented</span>
+<span className="badge planned">Planned (M2)</span>
 
-`gset run foo.rb` defaults to the Ruby target; `--target ruby` forces it. Generated files are Ruby scripts executed with `ruby`.
+The Ruby backend is not implemented yet — `gset transpile file.py -t ruby` currently errors with `no backend for target \`ruby\`; supported: go`.
 
-## Mapping table
+## What the backend will emit
 
-| GSET | Ruby output |
-|------|-------------|
-| `print(...)`, `say`, `echo`, `puts` | `puts(...)` |
-| `true`/`false` | `true`/`false` |
-| `null` | `nil` |
-| arrays / maps | `[...]` / `{...}` |
-| `if/elif/else` | `if`/`elsif`/`else` + `end` |
-| `while` | `while … end` |
-| `for…in` | `for … in … end` |
-| functions | `def name(...)` … `end` |
-| `try/catch/finally` | `begin` / `rescue` / `ensure` / `end` |
-| `throw` | `raise` |
-| `**` | `**` |
+| Construct | Planned output |
+|-----------|----------------|
+| `print(...)` | `puts(...)` |
+| `true` / `false` / `null` | `true` / `false` / `nil` |
+| `if / elif / else` | `if` / `elsif` / `else` + `end` |
+| `try`-style flow | `begin` / `rescue` / `ensure` / `end` |
 
-## Verified example
+## Why Ruby is a gate checkpoint
 
-```bash
-$ gset run hello.rb --target ruby
-```
-```ruby
-name = "World"
-count = 3
-puts("Hello, " + name)
-while count > 0
-    puts(count)
-    count = count - 1
-end
-```
-Output:
-```
-Hello, World
-3
-2
-1
-```
-
-## Watch out
-
-- **`then` and `do`**: the emitter uses `end`-terminated blocks (no `do`/`then` required thanks to newline parsing).
-- **Class flow**: Ruby forces class definitions at the top level; today's class-shell support works for declarations but method bodies aren't emitted yet.
-- **Blocks vs lambdas**: GSET lambdas become `def` wrappers rather than Ruby `->() {}`; behavior matches for direct calls.
-- **Runtime not present on all dev boxes**: this repo's dev machine has no `ruby` binary, so Ruby output is verified by transpile. Install Ruby to `run` it.
+One of the audit's most damning findings was **`&&`/`||` emitted into Ruby** — a syntax error in Ruby. The M2 gate directly encodes the fix: emitted Ruby must pass `ruby -c`, gated on toolchain presence in CI, so the defect class cannot regress.
 
 ## Runtime
 
-Requires `ruby` on `PATH`. Override with `compiler.ruby.command` in [`gset.conf`](../core-concepts/configuration).
+Requires `ruby` on `PATH` to run emitted output.

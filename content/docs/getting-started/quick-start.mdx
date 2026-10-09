@@ -1,122 +1,91 @@
 ---
 title: Quick Start
-description: Write your first GSET program, transpile it, and run it.
+description: Transpile a Python file to Go and run it — the working path today.
 ---
 
-<span className="badge implemented">Implemented</span>
-
-This page is a task-oriented tour. You will **install → create → transpile → run**.
+This page is a task-oriented tour of the **current** pipeline. If you expected five targets or the retired `.gset` language first, see [Introduction](introduction) — the Rust rewrite is intentionally front-and-center about what exists today.
 
 ## 1. Install
 
-[Install GSET](installation) (`go build -o gset .` if you cloned the repo), then confirm:
+[Install GSET](installation), then confirm:
 
 ```bash
-gset version      # GSET v2.2.1
-gset help
+gset version      # GSET v3.3.0
+gset --help
 ```
 
 ## 2. Create a file
 
-Create `hello.gset`:
+Create `fib.py`:
 
-```gset
-print("Hello, GSET!")
+```python
+def fib(n: int) -> int:
+    if n < 2:
+        return n
+    return fib(n - 1) + fib(n - 2)
+
+print(fib(10))
 ```
+
+GSET currently ships **one frontend (Python)** and **one backend (Go)**.
 
 ## 3. Transpile
 
-See the generated source without running it:
+See the generated Go without running it:
 
 ```bash
-$ gset transpile hello.gset
+$ gset transpile fib.py -t go
+warning: 5 expression(s) have no inferred type; backends will pick a default [gset-untyped] at fib.py:1:1
 package main
 
+import "fmt"
+
+func fib(n int) int {
+	if n < 2 {
+		return n
+	}
+	return (fib((n - 1)) + fib((n - 2)))
+}
+
 func main() {
-    fmt.Println("Hello, GSET!")
+	fmt.Println(fib(10))
 }
 ```
 
-`.gset` files default to the **Go** target. Pick another target explicitly:
+The `gset-untyped` warning is normal for annotated sources whose parameters aren't inferred yet — the Go backend still emits sensible defaults. `-t`/`--to` selects the target (default `go`). Save with `-o`:
 
 ```bash
-$ gset transpile hello.gset --target python
-print("Hello, GSET!")
-
-$ gset transpile hello.gset --target javascript
-console.log("Hello, GSET!")
-```
-
-Save output to a file with `-o`:
-
-```bash
-gset transpile hello.gset --target js -o hello.js
+gset transpile fib.py -t go -o fib.go
 ```
 
 ## 4. Run
 
 ```bash
-$ gset run hello.gset
-Hello, GSET!
+$ gset run fib.py -t go
+55
 ```
 
-`gset run` transpiles and executes with the target toolchain in one step. Because `hello.gset` is a `.gset` file it runs on the Go target by default.
+`gset run` transpiles, writes the generated file to a per-invocation temp directory, invokes the target runtime (`go run`), propagates its exit code, and cleans up. `--keep` keeps the generated file for inspection.
 
-## 5. Choice of target — when to use `--target`
+## 5. Where things stand
 
-GSET decides the target from the **file extension**, unless you pass `--target`:
+| Piece | Status |
+|--------|--------|
+| Python frontend (tree-sitter) | <span className="badge implemented">Implemented</span> |
+| Go backend | <span className="badge implemented">Implemented</span> |
+| Python / JS / Java / Ruby backends | <span className="badge planned">Planned (M2)</span> |
+| JS / TS frontend | <span className="badge planned">Planned (M2)</span> |
 
-| Input file | Implied target | Override example |
-|------------|----------------|------------------|
-| `hello.gset` | Go (the default IR) | `gset run hello.gset --target python` |
-| `hello.py` | Python | `gset run hello.py --target go` |
-| `hello.js` | JavaScript | — |
-| `hello.java` | Java | — |
-| `hello.rb` | Ruby | — |
-| `hello.go` | Go | — |
-
-So the file extension does **not** force the output language — it only picks the *default*. `--target` always wins.
-
-## 6. A slightly bigger program
-
-Count down from a variable, plus a loop and a string concatenation:
-
-```gset
-var name = "World"
-var count = 3
-print("Hello, " + name)
-while count > 0 {
-    print(count)
-    count = count - 1
-}
-```
-
-```bash
-$ gset run hello.gset --target python
-Hello, World
-3
-2
-1
-
-$ gset run hello.gset --target javascript
-Hello, World
-3
-2
-1
-```
-
-The same program runs unchanged on **go, python, javascript, java**, and **ruby** targets. See [Portability](../core-concepts/portability).
+The M2 gate will require every corpus program to transpile to output that passes each target language's **own** syntax checker (`gofmt`/`go vet`, `python -m py_compile`, `node --check`, `javac`, `ruby -c`), gated on toolchain presence in CI.
 
 ## What if something fails?
 
-- **Parse error** → GSET prints the offending lines before running anything.
-- **Transpile error** → you asked for a target that has no emitter (`--target c`).
-- **Execution error** → the target toolchain (e.g. Python) rejected the generated code, or the runtime isn't installed.
-
-Diagnosing these is covered in [Errors](../reference/errors).
+- **`gset: no backend for target \`python\`; supported: go`** — you asked for a backend that isn't implemented yet.
+- **Parse / lowering error** — GSET prints the offending spans before emitting anything.
+- **Execution error** — the target toolchain rejected the generated code, or the runtime isn't installed. Use `gset transpile ... -o` to inspect the generated file, or `--verbose` for diagnostics.
 
 ## Next steps
 
-- [The language](../language/overview)
-- [Targets and their quirks](../targets/overview)
-- [How GSET works under the hood](../core-concepts/how-it-works)
+- [How GSET works](../core-concepts/how-it-works)
+- [Targets and their status](../targets/overview)
+- [CLI reference](../reference/cli)

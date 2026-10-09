@@ -1,74 +1,20 @@
 ---
 title: Configuration
-description: gset.conf — keyword aliases, compiler overrides, and run pipelines.
+description: gset.conf was removed in the Rust rewrite; gset.toml is planned but not implemented.
 ---
 
-GSET reads configuration from three locations, first match wins:
+The Go-era `gset.conf` — keyword aliases, compiler overrides, and per-target print mappings — was **removed** with the Rust rewrite.
 
-1. `./gset.conf` in the current working directory
-2. `$HOME/.gset.conf`
-3. `/etc/gset.conf`
+## Today
 
-The file is a flat `key=value` list. Comments start with `#`.
+There is **no configuration file**. The CLI has no config-loading step before argument parsing, which is deliberate: a per-invocation config read (which the Go binary did even for `gset version`) is a startup-cost tax on exactly what the rewrite optimises for.
 
-## Keyword aliases
+## Planned: `gset.toml`
 
-Control the *spelling* of `print` per target:
+The rewrite plan reserves a `gset.toml` carrying only what has real use:
 
-```conf
-# global keywords
-keywords.print=say
+- **default target** (`go`, unless `-t` is passed)
+- **interpreter paths** for the runtimes `gset run` shells out to
+- **project root** and **dependency search roots** (the `gset-deps` milestone)
 
-# per-target overrides
-ext.py.keywords.print=puts
-ext.js.keywords.print=log
-```
-
-With `keywords.print=say`, `say "hi"` in your source transpiles to `print("hi")` (Python), `console.log("hi")` (JavaScript), `fmt.Println("hi")` (Go).
-
-> **Verified:** keyword aliases are applied by **both** `gset run` and `gset transpile` — the keyword map feeds every emitter. `say`/`shout` work.
-
-## Compiler overrides
-
-Change how each target runs. Each compiler block has four keys:
-
-```conf
-compiler.python.command=python3
-compiler.python.args=-u
-compiler.python.wrapper=
-
-compiler.java.command=javac
-compiler.java.args=Main.java
-compiler.java.run=javac Main.java && java Main && rm Main.class
-compiler.java.wrapper=
-```
-
-Precedence:
-
-| Setting | Meaning | Default |
-|---------|---------|---------|
-| `compiler.<lang>.command` | executable | `GetCompilers()` defaults (`python3`, `node`, `go`, `javac`, `ruby`) |
-| `compiler.<lang>.args` | static args | target-specific |
-| `compiler.<lang>.run` | full shell pipeline | set only for Java |
-| `compiler.<lang>.wrapper` | extra wrapper lines | empty |
-
-If `command` is empty in config, the built-in default is retained (merging, not replacing).
-
-## The gset.conf included with the repo
-
-The shipped `gset.conf` registers print aliases (`say`, `println`, `print`, `shout`, `log`, `echo`, `puts`) for `.py`, `.js`, `.java`, `.go`, `.rb` and lists keyword sections for future targets.
-
-## CWD dependence
-
-Because `gset.conf` is resolved from the **current working directory**, running `gset` from a different directory changes keywords and compilers. Verify your config is in effect:
-
-```bash
-ls gset.conf        # your config present?
-gset transpile hello.gset --target js | head -3
-```
-
-If `say` stops mapping, you're likely not in the directory holding `gset.conf`.
-
-## File-header keywords (parsed, not yet applied)
-
-A leading `key=value` block inside a `.gset` file (e.g. a custom `print=` mapping in the file header) is parsed by `config/config.go`, but **not yet applied** to transpilation — the header is a planned feature. Set aliases via `gset.conf` for now.
+None of this is implemented yet. Until it lands, `gset` behaves identically regardless of the directory you invoke it from.

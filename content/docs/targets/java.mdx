@@ -1,74 +1,29 @@
 ---
 title: Java Target
-description: Main.java generation — System.out.println, while, and typed declarations.
+description: Planned backend — Main.java generation for typed OOP output.
 ---
 
-<span className="badge implemented">Implemented</span>
+<span className="badge planned">Planned (M2)</span>
 
-`gset run foo.java` defaults to the Java target; `--target java` forces it. Generated code follows the **"one public class `Main`"** model:
+The Java backend is not implemented yet — `gset transpile file.py -t java` currently errors with `no backend for target \`java\`; supported: go`.
+
+## The planned model
+
+The Go-era backend followed a single-public-class model, and the rewrite keeps the shape:
 
 ```java
 public class Main {
     public static void main(String[] args) {
         var name = "World";
-        var count = 3;
         System.out.println("Hello, " + name);
-        while (count > 0) {
-            System.out.println(count);
-            count = count - 1;
-        }
     }
 }
 ```
 
-## How execution works
+## Why Java is a stress test
 
-`gset run`:
+Java is the hardest of the five targets for dynamic input: untyped code cannot compile. That is exactly why it is part of the M2 gate — `javac` is the strictest checker on the list, and `[]interface{}{}` into Java is one of the recorded defect classes the rewrite eliminates.
 
-1. writes `Main.java` into the current working directory,
-2. runs `javac Main.java && java Main` via the configured `compiler.java.run` pipeline,
-3. cleans up `Main.class` (and `Main.java` unless `--keep`).
+## Runtime
 
-That means the Java target depends on **both `javac` and `java`**, and it runs from the working directory where you invoke `gset`.
-
-## Mapping table
-
-| GSET | Java output |
-|------|-------------|
-| `var x = …` | `var x = …;` (Java 10+ `var`) |
-| assignment `x = …` | `x = …;` |
-| `print(...)` | `System.out.println(...)` |
-| `while` | `while (…) { }` |
-| `&&`/`\|\|`/`!` | same operators |
-| `null` / `true` | `null` / `true` |
-| functions | static methods inside `Main` |
-| classes | nested `class` shells |
-
-JavaScript-style line endings get `;` appended to expression statements and assignments.
-
-## Verified example
-
-```gset
-var name = "World"
-var count = 3
-print("Hello, " + name)
-while count > 0 {
-    print(count)
-    count = count - 1
-}
-```
-
-```bash
-$ gset run hello.java --target java
-Hello, World
-3
-2
-1
-```
-
-## Watch out
-
-- **Types**: `var` (Java 10+) requires initialized local declarations. Declarations with `var name = …` are fine; uninitialized/typed-empty declarations are not valid Java.
-- **Arithmetic**: `var n = 5` gives Java `int` for integer literals — `n * n` is valid int arithmetic. Use typed annotations (`var n int = 5`) when you need explicit types.
-- **`Main.java` collides per CWD.** Running several Java targets in the same directory may overwrite `Main.java`. Use separate directories or `--keep` to inspect output.
-- **Methods on the class shell** are not generated yet. Keep behavior in functions for the Java target.
+Requires both `javac` and `java` on `PATH` to run emitted output.

@@ -1,39 +1,34 @@
 ---
 title: Planned Targets
-description: C, C++, C#, Rust, PHP, Swift, Kotlin, TypeScript — config stubs without emitters.
+description: "After M2 — more frontends and backends: Go, Java, Ruby, Rust, C, C++, and beyond."
 ---
 
 <span className="badge planned">Planned</span>
 
-The repository's `gset.conf` historically carried keyword sections for **C, C++, C#, Rust, PHP, Swift, Kotlin, and TypeScript** (plus print mappings per language). Those stubs make the *vision* tangible, but **no emitter exists** for them yet.
+The Go-era `gset.conf` carried keyword stubs for a long list of languages. That scaffolding is **gone** — building a target is now a real backend implementing the `Backend` trait, not a config row.
 
-## What exists today
+## The sequence in the rewrite plan
 
-- Per-language keyword sections in `gset.conf` (e.g. `ext.cpp.*`, `ext.rs.*`) mapping `print` to `printf`, `Console.WriteLine`, `System.out.println`, `echo`, etc.
-- Pluggable per-extension compiler *commands* in configuration.
+| Milestone | Adds |
+|-----------|------|
+| M2 | JavaScript/TypeScript frontend; Python, JavaScript, Java, Ruby backends |
+| M3 | Go, Java, Ruby, then C/C++ and Rust frontends |
+| M5 | dependency resolution for pip, npm, Cargo, Maven, Go modules |
 
-## What's missing
+Each new language is a **grammar dependency plus a lowering pass**, not a new compiler.
 
-- A **code generator** per language (the emitter table in `transpiler/emit.go` stops at go/python/js/java/ruby).
-- File wrappers: `#include`/`using`/`extern crate` headers, `int main()` vs `func main()` vs iconv, Cargo manifests, and so on.
-- Type model alignment (C#/Kotlin are typed; PHP is dynamic like Python).
+## What a new backend requires
 
-## How a new target would be added
-
-1. Add `ext.<lang>.*` keyword mappings in `gset.conf`.
-2. Add a `cmd` entry (and `run` pipeline) under `compiler.<lang>.command`.
-3. Implement a `*Stmt`-family emitter for the target in `transpiler/emit.go`.
-4. Add the extension to the `targetExtension` map and extend `IsSupportedTarget`.
-
-`scripts/build.sh` cross-compiles the binary so a new emitter ships to every platform from one `make build`.
+1. Implement `Backend` — `id()`, `capability()`, `emit_module()`.
+2. Emit through the shared `CodeWriter` (which owns indentation, so generated files never fail their checker due to formatting).
+3. Clear the target-syntax gate: generated output must pass the target's own checker.
+4. Golden files per frontend × backend pair.
 
 ## Suggested priority
 
 | Target | Why |
 |--------|-----|
-| TypeScript | closest to JavaScript backend; type output pairs with the Go IR |
+| TypeScript | closest to the JS lowering path; pairs with the JS backend |
 | C | small runtime, dominant in systems contexts |
 | Rust | memory-safe C alternative with a single-binary toolchain |
 | C# / Kotlin | typed OOP targets with existing `class` vision |
-
-The header wrapper for Go (`package main` + `import "fmt"`) is the model each new target wrapper should follow.

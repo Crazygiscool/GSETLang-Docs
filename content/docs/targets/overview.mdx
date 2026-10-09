@@ -1,66 +1,44 @@
 ---
 title: Targets Overview
-description: Which backends exist, how target selection works, and how the emitters differ.
+description: Which backends exist, how target selection works, and what M2 will add.
 ---
 
-GSET ships **five working backends** — go, python, javascript, java, ruby — plus config stubs for future targets.
+GSET currently ships **one working backend — go** — and plans five plus more. The M2 milestone delivers the full set.
 
 ## How the target is chosen
 
-Two rules:
-
-1. **File extension picks the default** — `foo.py` defaults to Python, `foo.js` to JavaScript, `foo.gset`/unknown to **Go**.
-2. **`--target` always wins** — it overrides the extension default.
+- The **target** is chosen with `-t`/`--to` (default `go`); `--target` is accepted as an alias.
+- The **source** language is inferred from the file extension, and overridden with `-f`/`--from`.
 
 | Flag | Values |
 |------|--------|
-| `--target` | `go`, `python`, `js`/`javascript`, `java`, `ruby` |
+| `-t, --to` | `go`, `python`, `js`/`javascript`, `java`, `ruby` |
 
-Unknown targets are rejected with a clear message. Emitted temp files use the extension map: `.go`, `.py`, `.js`, `.java`, `.rb`.
+Unknown targets are rejected with a clear message. Backends that exist only in the plan produce `gset: no backend for target \`X\`; supported: go` rather than wrong output.
 
 ## Backend table
 
-| Target | Status | `run` needs installed | Notes |
-|--------|--------|----------------------|-------|
-| Python | <span className="badge implemented">Implemented</span> | `python3` | Most faithful subset coverage |
-| JavaScript | <span className="badge implemented">Implemented</span> | `node` | `console.log`, `const`, arrow lambdas |
-| Go | <span className="badge implemented">Implemented</span> | `go` | Default IR, `func main()` wrapper, needs typed values |
-| Java | <span className="badge implemented">Implemented</span> | `java` + `javac` | Writes `Main.java`, one class per file |
-| Ruby | <span className="badge implemented">Implemented</span> | `ruby` | `puts`, `begin/rescue/ensure` |
-| C, C++, C#, Rust, PHP, Swift, Kotlin, TypeScript | <span className="badge planned">Planned</span> | — | Config stubs exist, no emitter yet |
+| Target | Status | `run` needs installed |
+|--------|--------|----------------------|
+| Go | <span className="badge implemented">Implemented</span> | `go` |
+| Python | <span className="badge planned">Planned (M2)</span> | `python3` |
+| JavaScript | <span className="badge planned">Planned (M2)</span> | `node` |
+| Java | <span className="badge planned">Planned (M2)</span> | `java` + `javac` |
+| Ruby | <span className="badge planned">Planned (M2)</span> | `ruby` |
+| C, C++, Rust, C#, PHP, Swift, Kotlin, TypeScript | <span className="badge planned">Planned</span> | — |
 
-## What a "working backend" means
+## What "a working backend" means
 
-`gset run foo.gset --target python` does four things, all verified:
+`gset run fib.py -t go` does five things, all verified:
 
-1. Parses your GSET source.
-2. Emits a **complete, runnable file** — wrapper (`package main`, `class Main`, shebang-free script) included.
-3. Writes it to a location the target runtime expects.
-4. Executes the target's compiler/interpreter and streams output.
+1. Parses the Python source with a tree-sitter grammar.
+2. Lowers it to the typed IR and runs the semantic pass.
+3. Emits a **complete, runnable file** — wrapper and imports included.
+4. Writes it to a per-invocation temp directory.
+5. Executes the target runtime (`go run`) and propagates its exit code.
 
-`gset transpile` does steps 1–2 and prints the file to stdout, or `-o file` saves it.
+`gset transpile` does steps 1–3 and prints the file to stdout, or saves it with `-o file`.
 
-## The five outputs of one program
+## The M2 acceptance criterion
 
-```gset
-var name = "World"
-print("Hello, " + name)
-```
-
-| Target | Generated |
-|--------|-----------|
-| `--target go` | `package main` / `import "fmt"` / `func main()` / `fmt.Println("Hello, " + name)` |
-| `--target python` | `name = "World"` / `print("Hello, " + name)` |
-| `--target javascript` | `let name = "World";` / `console.log("Hello, " + name)` |
-| `--target java` | `public class Main {` / `String name = "World";` / `System.out.println(...)` |
-| `--target ruby` | `name = "World"` / `puts("Hello, " + name)` |
-
-## Comparing targets
-
-Each target page documents the same three things:
-
-1. **What runs cleanly** — the verified subset for that runtime.
-2. **What compiles but behaves differently** — e.g. Go's array printing format, Python floordiv differences.
-3. **What doesn't compile yet** — e.g. `try` on Go, methods on Ruby.
-
-Pick your target by asking *"what must genuinely run at the end?"* — Python/JS are the safest for dynamically-typed GSET; Go/Java require typed annotations; Ruby is a near-Python port with `puts`.
+When all five backends land, generated output for every corpus case must pass the target's **own** syntax checker — `gofmt`/`go vet`, `python -m py_compile`, `node --check`, `javac`, `ruby -c` — gated on toolchain presence in CI.

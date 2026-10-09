@@ -1,73 +1,75 @@
 ---
 title: Installation
-description: Install GSET from source, a release binary, or a package.
+description: Install GSET from a release binary, a package manager, or from source.
 ---
 
-GSET is version **2.2.1**. It has **zero external dependencies** — one static Go binary.
+GSET is version **3.3.0**. It is a **single static Rust binary** with no runtime dependencies of its own — you only install a target runtime to *execute* transpiled output.
 
 ## Requirements
 
-- To **build** from source: Go 1.21+
-- To **run** GSET output, install whichever target runtime you want to use:
-  `python3`, `node`, `go`, `java` (+ `javac`), or `ruby`
+- To **run** GSET output today, install the target runtime you want to execute: the **Go** backend is the only one implemented so far (Python, JavaScript, Java, and Ruby targets land with M2).
+- To **build** from source: Rust from `rust-toolchain.toml` (currently **1.98.1**).
 
 ## One-liner install script
-
-The project ships an installer script that fetches a prebuilt binary:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Crazygiscool/GSETLang/main/install.sh | bash
 ```
 
-The installer copies the binary to `~/.local/bin/gset`, adds `~/.local/bin` to your `PATH` (appends to `~/.bashrc` or `~/.zshrc`), and prints the installed version. Restart your shell (or `source ~/.bashrc`/`~/.zshrc`) if `gset` isn't found, then verify:
+The installer downloads the matching release asset for your OS and architecture, installs the binary to `~/.local/bin/gset`, and adds `~/.local/bin` to your `PATH`. Pass `--dir <path>` to install elsewhere:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Crazygiscool/GSETLang/main/install.sh | bash -s -- --dir ~/bin
+```
+
+On Windows use the PowerShell installer:
+
+```powershell
+powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/Crazygiscool/GSETLang/main/install.ps1 | iex"
+```
+
+Verify:
 
 ```bash
 gset version
 ```
 
+## Package managers
+
+| Package | Install |
+|---------|---------|
+| Homebrew | `brew install crazygiscool/gset/gset` |
+| Arch Linux (AUR) | `gset` — `paru -S gset` / `yay -S gset` / `makepkg -si` |
+| Debian / Ubuntu | `sudo dpkg -i gset-3.3.0-amd64.deb` (from releases) |
+| Windows (winget) | `winget install GSETLang.GSET` |
+| Windows (Chocolatey) | `choco install gset` |
+
 ## Pre-built binaries
 
-Download the latest release from the [GitHub Releases](https://github.com/Crazygiscool/GSETLang/releases) page. Releases are cross-compiled for Linux, macOS, and Windows (amd64/arm64) into `dist/` by `scripts/build.sh`.
+Download the latest release from [GitHub Releases](https://github.com/Crazygiscool/GSETLang/releases). Every release ships:
 
-```bash
-# Linux example, after downloading the archive
-tar -xzf gset-2.2.1-linux-amd64.tar.gz
-sudo mv gset /usr/local/bin/gset
-```
+- `gset-linux-amd64.tar.gz`, `gset-linux-arm64.tar.gz`, `gset-3.3.0-amd64.deb`
+- `gset-darwin-amd64.tar.gz`, `gset-darwin-arm64.tar.gz`
+- `gset-windows-amd64.zip`
 
 ## Build from source
 
 ```bash
 git clone https://github.com/Crazygiscool/GSETLang.git
 cd GSETLang
-go build -o gset .
+cargo build --release --workspace
 ```
 
-The build emits a `gset` binary in the repo root. To also copy it into `test/`, use `make build` (this produces `gset-2.2.1`).
-
-## Package managers
-
-| Package | Install |
-|---------|---------|
-| Arch Linux (AUR) | `yay -S gset` |
-| Debian/Ubuntu | `sudo dpkg -i gset_2.2.1_amd64.deb` (from releases) |
-| Windows | `winget install GSETLang` / `choco install gset` (see `plugins/packages/`) |
-
-## Verify the install
-
-```bash
-gset version
-# GSET v2.2.1
-```
+The build emits `target/release/gset` (the binary is named `gset`). The workspace toolchain is pinned in `rust-toolchain.toml`.
 
 ## What you'll need at runtime
 
-| Target | Command GSET shells out to |
-|--------|---------------------------|
-| Python | `python3` |
-| JavaScript | `node` |
-| Go | `go run` |
-| Java | `sh -c 'javac Main.java && java Main'` (configurable) |
-| Ruby | `ruby` |
+| Target | Command GSET shells out to | Status |
+|--------|----------------------------|--------|
+| Go | `go run` | <span className="badge implemented">Implemented</span> |
+| Python | `python3` | <span className="badge planned">Planned (M2)</span> |
+| JavaScript | `node` | <span className="badge planned">Planned (M2)</span> |
+| Java | `javac Main.java && java Main` | <span className="badge planned">Planned (M2)</span> |
+| Ruby | `ruby` | <span className="badge planned">Planned (M2)</span> |
 
-You can override any of these commands in [`gset.conf`](../core-concepts/configuration). If a toolchain is missing, `gset run` fails with a clear execution error — install the runtime and try again.
+If a toolchain is missing, `gset run` fails with a clear execution error — install the runtime and try again.

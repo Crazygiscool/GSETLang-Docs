@@ -3,45 +3,35 @@ title: Limitations
 description: The honest list — what GSET cannot do today, and why.
 ---
 
-GSET's value is its narrow, verified subset. Here's the full, honest list of boundaries.
+GSET is mid-rewrite, and this guide is honest about the seams.
+
+## Language coverage
+
+- **One frontend:** Python. JavaScript/TypeScript land in M2, Go/Java/Ruby/Rust/C in M3.
+- **One backend:** Go. Python, JavaScript, Java, and Ruby land in M2.
 
 ## Typing
 
-- **No type checker.** GSET is dynamically typed. Go/Java output depends on annotations you write; wrong types are caught by the target compiler, not by GSET.
-- **Go output needs explicit types** for arithmetic and function parameters:
-  - `x = 42` without `var` → `undefined: x`
-  - untyped `n * n` → `operator * not defined on interface{}`
-  - untyped param `square(n)` → invalid math in Go
-- **Java leans on `var`** (Java 10+). Anything needing an explicit type must be annotated.
+- **Conservative inference.** The semantic pass fills types from literals, annotations, arithmetic, calls, and collection elements; genuinely dynamic code stays `Type::Unknown` and propagates. Wrong-yet-valid output is possible — the syntax-check gate guarantees *valid syntax*, not *identical semantics*.
+- **Annotate for typed output.** Unannotated code gets backend-chosen defaults, reported by the `gset-untyped` warning.
 
 ## Language features
 
 | Feature | Status | Blocker |
 |---------|--------|---------|
-| Classes (method bodies) | not generated | emitters output shells only |
-| `import` / `export` | parsed, not emitted | no module model yet |
-| Default/optional params | not modeled | parser + emitters |
-| File-header `key=value` keywords | parsed, unused | config not wired to emitters |
-| `extends`/`implements`/`mixin` | parsed, ignored | class support incomplete |
-| Strict equality opts (`===`) | no emitter switch | single JS comparison output |
-
-## Target gaps
-
-- **Go**: no `try/catch` (no exceptions in Go), no classes, dynamic typing constraints above.
-- **Java**: `Main.java` model only — one file, one class; keep behavior in functions.
-- **Ruby**: dev box lacks Ruby; output verified by transpile, not run.
-- **C/C++/C#/Rust/PHP/Swift/Kotlin/TypeScript**: no emitters — config stubs only.
+| Modular projects | not yet | M4 local project graph |
+| Dependency resolution | not yet | M5 (pip, npm, Cargo, Maven, Go modules) |
+| Semantic-pair preservation | out of scope | none — by design |
+| LSP / IDE integration | out of scope | none — by design |
 
 ## Other boundaries
 
-- **One file per program.** No project/module orchestration yet.
-- **10 MB output cap** when running (a safety valve, not a feature limit).
-- **`gset.conf` CWD-dependence** can surprise: keywords vanish if you run outside the config dir.
-- **Dynamic print formatting differs by target** (Python `1 and True` vs JS `1 and true`; Go array `[1 2 3]`).
-- Python `/` is float division; Go/Java are integer — portable math must be chosen carefully.
+- **One file at a time** for `transpile`/`run`. No project/module orchestration yet (M4).
+- **No configuration file.** `gset.toml` is planned, nothing is implemented today.
+- **`run` shells to installed runtimes only** for implemented targets (`go` today).
 
 ## What GSET deliberately doesn't do
 
-- No garbage-collector tuning, no low-level control flow, no pointer arithmetic.
-- No Windows batch / PowerShell target.
-- No "interpreter" — GSET always produces real target source and shells to the target runtime.
+- No VM/interpreter — it always produces real target source and shells to the target runtime.
+- No full semantic version solver (out of scope).
+- No source-level inlining of compiled/binary dependencies (M5 defines an honest `OpaqueForeign` boundary instead).

@@ -1,73 +1,51 @@
 ---
 title: Go Target
-description: The default intermediate representation — package main, func main, and the typing rules you must follow.
+description: The default backend — and the only one implemented so far.
 ---
 
 <span className="badge implemented">Implemented</span>
 
-Go is GSET's **default intermediate representation**: `.gset` files default to the Go target, `gset run hello.gset` works out of the box, and `go` is what `gset transpile` produces unless you pass `--target`.
+Go is GSET's **default backend**: `-t go` (the default), and the target the M1 milestone proved end to end.
 
 The generated file is a complete runnable Go program:
 
 ```go
 package main
+
 import "fmt"
 
+func fib(n int) int {
+	if n < 2 {
+		return n
+	}
+	return (fib((n - 1)) + fib((n - 2)))
+}
+
 func main() {
-    var name = "World"
-    var count = 3
-    fmt.Println("Hello, " + name)
-    for count > 0 {
-        fmt.Println(count)
-        count = count - 1
-    }
+	fmt.Println(fib(10))
 }
 ```
-
-## Mapping table
-
-| GSET | Go output |
-|------|-----------|
-| `var x = …` | `var x = …` |
-| assignment `x = …` | `x = …` (**needs prior `var`**) |
-| `while cond {}` | `for cond {}` |
-| `foreach i, v in arr {}` | `for i, v := range arr {}` |
-| `for cls` | `for i := 0; i < n; i++ {}` |
-| arrays `[1, 2]` | `[]interface{}{1, 2}` |
-| maps `{"a": 1}` | `map[string]interface{}{"a": 1}` |
-| functions | `func` returning `interface{}` |
-| `try/catch` | ❌ not supported — Go has no exceptions |
-| `true`/`null` | `true`/`nil` |
-
-## The three rules that keep Go output valid
-
-1. **Always `var`-declare before use.** `x = 42` alone → `undefined: x`. Every dynamic-looking program must declare: `var x = 42`.
-2. **Type your arithmetic or keep it out of Go.** `var n = n * n` on an interface yields `invalid operation: n * n (operator * not defined on interface{})`. Use typed annotations: `var n int = 5`.
-3. **Parameterize functions with types.** `function square(n) { return n * n }` fails to compile in Go; `function square(n int) int` does not.
 
 ## Verified example
 
-```gset
-var name = "World"
-var count = 3
-print("Hello, " + name)
-while count > 0 {
-    print(count)
-    count = count - 1
-}
+```bash
+$ gset transpile tests/corpus/py/fib.py -t go -o fib.go && go vet fib.go   # clean
+$ gset run tests/corpus/py/fib.py -t go
+55
 ```
 
-```bash
-$ gset run hello.gset
-Hello, World
-3
-2
-1
+## The typing rule that keeps Go output valid
+
+The IR's semantic pass infers types from literals, annotations, arithmetic, calls, and collection elements. Where the source is genuinely dynamic the type stays `Unknown` and the backend picks a default, which is what the `gset-untyped` warning reports.
+
+Annotate source that you want typed output from:
+
+```python
+def fib(n: int) -> int:   # → func fib(n int) int
+    ...
 ```
 
 ## Watch out
 
-- **`fmt` import is automatic.** Any `print`-alias or string containing `fmt`-mapped names triggers `import "fmt"`. You don't add imports.
-- **Array print format.** `print([1, 2, 3])` prints Go's `[1 2 3]` (space-separated, no commas) — inherent to `fmt.Println`, differs from Python/JS.
-- **No exceptions.** `try/catch` emits Go-invalid `try {`. Keep `try` blocks only for non-Go targets.
-- **Types live only in typed annotations.** GSET is dynamically typed; Go output mirrors whatever you typed explicitly.
+- **`fmt` import is automatic.** Any use of print triggers `import "fmt"`.
+- **The M1 gate** is exactly this pair: `gofmt` and `go vet` accept every corpus emit. If the backend ever emits invalid Go, the CI gate fails, not a user at runtime.

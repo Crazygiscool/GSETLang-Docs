@@ -1,60 +1,53 @@
 ---
 title: GSET vs Other Tools
-description: How GSET compares to Babel, SwiftShader-style transpilers, and multi-language harnesses.
+description: How GSET compares to Babel, porting tools, polyglot runtimes, and multi-runtime harnesses.
 ---
 
 ## GSET vs. Babel / TypeScript
 
 | | Babel / TS | GSET |
 |---|---|---|
-| Input & output | JS → JS (transform / typecheck) | **GSET → 5 languages** |
-| Typed core | Typescript has full type system | dynamic, annotation-honoring only |
-| Runtime | none added | shells to target runtimes |
+| Input & output | JS → JS (transform / typecheck) | **any language → any language** (Python → Go today) |
+| Typed core | TypeScript has a full type system | shared typed IR with `Unknown` propagation |
+| Runtime | none added | shells to the target runtime |
 | Purpose | transpile *within* one ecosystem | port *across* ecosystems |
 
-GSET's output is genuine source in the target language — the "Babel of everything", but with the honesty that each backend supports only GSET's shared subset.
+GSET's output is genuine source in the target language — but every target is gated on that language's own syntax checker, so "valid output" is a CI assertion, not a claim.
 
 ## GSET vs. language-porting transpilers (2to3, 6to5, Cyclone)
 
-Those tools convert one language to its close relative (Python 2→3, ES5→ES6). GSET converts one small language to **five unrelated ones** — closer in spirit to emscripten (compile to C then target), but staying at the source level and never lowering to machine code.
+Those tools convert one language to a close relative (Python 2→3, ES5→ES6). GSET converts real input languages to unrelated output languages through a shared IR — closer in spirit to a compiler frontend/backend split, but staying at the source level and never lowering to machine code.
 
 ## GSET vs. polyglot "run anywhere" layers (GraalVM, WASM)
 
 | | Graal / WASM | GSET |
 |---|---|---|
-| Model | one runtime interprets many languages | one language transpiles to many runtimes |
-| Typing | native per language | GSET's dynamic subset |
-| Achievement | many languages, one runtime | one language, five runtimes |
+| Model | one runtime interprets many languages | parse many languages, emit to many runtimes |
+| Typing | native per language | shared typed IR; conservative inference |
+| Achievement | many languages, one runtime | many languages, many runtimes, source you keep |
 
-GSET trades language breadth for **real per-target output you can read, debug, and keep** — no VM layer.
-
-## GSET vs. multi-runtime harnesses (docker-compose, task runners)
-
-A database of "same logic, many runtimes" exists via Docker; GSET is smaller-grained: it rewrites *your statements*, not services, and does it to *source code* you can inspect and commit.
+GSET trades universal coverage for **real per-target output you can read, debug, and keep** — no VM layer.
 
 ## GSET vs. the original "any-language config" promise
 
-The earliest vision was config-driven: point GSET at any language via `gset.conf`, and it'd speak it. The realized version is narrower but real:
+The earliest vision was config-driven: point GSET at any language via `gset.conf` and it would speak it. The rewrite replaced that with **a real compiler pipeline**:
 
-| Promise (README-era) | Reality (2.2.1) |
+| Promise (README-era) | Reality (3.3.0) |
 |----------------------|------------------|
-| *any language, via config* | five emitters; config drives keywords + compilers only |
-| *custom keywords in config* | true — `say`/`shout`/`echo` work per target |
-| *classes everywhere* | class shells; method bodies planned |
-| *run anywhere with no runtime* | needs the target's real runtime |
-
-The divergence is deliberate: emitters produce **correct** output for a **known** subset rather than plausible output for everything.
+| *any language, via config* | tree-sitter frontends + a typed IR; config file removed |
+| *custom keywords in config* | gone — builtins are first-class in each backend |
+| *five emitters that could emit broken syntax* | capability matrix + syntax-check gate; only Go ships today |
 
 ## When GSET fits
 
-- Teaching a language family with one shared program.
-- Generating portable demo/kata code across runtimes.
-- Prototyping syntax experiments without installing 5 toolchains by hand.
+- Moving a Python codebase's logic to Go, with valid-syntax output.
+- Learning how the same program looks in different target languages.
+- The M2 milestone: a corpus of programs that compile and run on five runtimes.
 
 ## When it doesn't
 
-- Big type-heavy codebases (Go/Java need annotations).
-- Mission-critical portability (target quirks above).
-- Anything requiring modules, classes-with-behavior, or OS-specific features.
+- Big type-inference-sensitive codebases (inference is conservative; `Unknown` propagates).
+- Semantic *preservation* across all language pairs (out of scope).
+- Anything needing modules, classes-with-behavior, or OS-specific features before M4/M5.
 
 Next: [The Roadmap](roadmap).
