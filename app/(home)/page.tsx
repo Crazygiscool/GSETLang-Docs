@@ -10,8 +10,11 @@ import {
   Code,
   ArrowRight,
 } from "lucide-react";
+import { getLatestReleaseVersion } from "@/lib/github-release";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const version = await getLatestReleaseVersion();
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
@@ -30,7 +33,7 @@ export default function HomePage() {
           />
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-sm font-medium mb-6">
             <Zap className="w-4 h-4" />
-            <span>GSET v3.3.0 Released</span>
+            <span>GSET v{version} Released</span>
           </div>
 
           <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-6">
@@ -239,7 +242,7 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="font-bold text-lg">GSET</span>
-            <span className="text-muted-foreground">v3.3.0</span>
+            <span className="text-muted-foreground">v{version}</span>
           </div>
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
             <Link

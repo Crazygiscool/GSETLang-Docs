@@ -3,7 +3,7 @@ title: Installation
 description: Install GSET from a release binary, a package manager, or from source.
 ---
 
-GSET is version **3.3.2**. It is a **single static Rust binary** with no runtime dependencies of its own — you only install a target runtime to *execute* transpiled output.
+GSET is version **<ReleaseVersion />**. It is a **single static Rust binary** with no runtime dependencies of its own — you only install a target runtime to *execute* transpiled output.
 
 ## Requirements
 
@@ -40,7 +40,7 @@ gset version
 |---------|---------|
 | Homebrew | `brew install crazygiscool/gset/gset` |
 | Arch Linux (AUR) | `gset` — `paru -S gset` / `yay -S gset` / `makepkg -si` |
-| Debian / Ubuntu | `sudo dpkg -i gset-3.3.2-amd64.deb` (from releases) |
+| Debian / Ubuntu | <code>sudo dpkg -i</code> <ReleaseAsset suffix="-amd64.deb" /> (from releases) |
 | Windows (winget) | `winget install GSETLang.GSET` |
 | Windows (Chocolatey) | `choco install gset` |
 
@@ -48,11 +48,11 @@ gset version
 
 Download the latest release from [GitHub Releases](https://github.com/Crazygiscool/GSETLang/releases). Every release ships:
 
-- `gset-linux-amd64.tar.gz`, `gset-linux-arm64.tar.gz`, `gset-3.3.2-amd64.deb`
+- `gset-linux-amd64.tar.gz`, `gset-linux-arm64.tar.gz`, <ReleaseAsset suffix="-amd64.deb" />
 - `gset-darwin-amd64.tar.gz`, `gset-darwin-arm64.tar.gz`
 - `gset-windows-amd64.zip`
-- `gset-3.3.2-windows-amd64-setup.exe` (NSIS installer) and
-  `gset-3.3.2-windows-amd64.msi` (x64 MSI installer)
+- <ReleaseAsset suffix="-windows-amd64-setup.exe" /> (NSIS installer) and
+  <ReleaseAsset suffix="-windows-amd64.msi" /> (x64 MSI installer)
 
 The NSIS installer lets you choose between installing for all users or just
 the current user. The MSI installs per-machine and requires administrator
